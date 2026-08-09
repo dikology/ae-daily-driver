@@ -1,0 +1,35 @@
+---
+description: Read, review, and safely edit Excalidraw diagram source files.
+globs:
+  - "**/*.excalidraw"
+  - "**/*.excalidraw.json"
+alwaysApply: false
+---
+
+# Excalidraw file handling
+
+Excalidraw files are JSON scene documents, not arbitrary text.
+
+## Reading
+- Parse the complete JSON before describing the diagram.
+- Treat `elements` as the diagram's source of truth.
+- For each element, use `id`, `type`, `x`, `y`, `width`, `height`, `text`, `containerId`,
+  `startBinding`, `endBinding`, and `boundElements` to reconstruct relationships.
+- Explain diagrams as: components/nodes, connections/arrows, groups, and data/control flow.
+- Ignore deleted elements where `isDeleted` is true.
+
+## Editing
+- Preserve the existing top-level schema: `type`, `version`, `source`, `elements`, `appState`, and `files`.
+- Make the smallest valid edit possible. Do not regenerate the entire drawing unless explicitly asked.
+- Preserve all unknown fields and existing element IDs.
+- When adding an element, assign a new unique ID and include all fields required by nearby elements of the same type.
+- For arrows, set `startBinding` and `endBinding` when connecting existing shapes.
+- When adding text to a shape, use a text element with `containerId` and update the container's `boundElements`.
+- Keep positions aligned with the existing layout, avoid overlaps, and retain the current visual style.
+- Do not alter `files` or image references unless the task explicitly involves images.
+- Return a brief change summary, including affected element IDs and any layout assumptions.
+
+## Validation
+- Ensure the result is valid JSON.
+- Do not leave dangling bindings or references to nonexistent element IDs.
+- Do not edit `.excalidraw.png` or `.excalidraw.svg` directly. Prefer the corresponding `.excalidraw` source file.
