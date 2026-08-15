@@ -1,6 +1,6 @@
 ---
 name: triage-analytics
-description: Move incoming analytics engineering requests and external PRs through a state machine of triage roles — categorise by type (bi/etl/adhoc/infra/data-quality), resolve the owning repo, verify, grill if needed, and write agent-ready briefs. Fork of mattpocock/skills' triage, adapted for cross-repo analytics work.
+description: Move incoming analytics engineering requests and external PRs through a state machine of triage roles — categorise by HOSPA component (BI, ETL, Ad-hoc, DataOps, A/B, Discovery, Docs, Goal, Report) or issue type Bug, resolve the owning repo, verify, grill if needed, and write agent-ready briefs. Fork of mattpocock/skills' triage, adapted for cross-repo analytics work.
 disable-model-invocation: true
 ---
 
@@ -10,11 +10,10 @@ Move requests on the project issue tracker(s) through a small state machine of t
 roles. This is a fork of mattpocock/skills' `triage` — the state machine, grilling,
 verify step, and out-of-scope logging are unchanged because they're already
 domain-agnostic. Two things are different from the original, both marked below:
-the category roles are analytics types instead of bug/enhancement, and there's an
+the category roles are HOSPA Jira components (not GitHub labels), and there's an
 explicit repo-resolution step since your work spans repos rather than living in one.
 
-Use this only for requests you didn't scope yourself — a Slack ask, a stakeholder
-request, a broken-pipeline alert, an external PR. If you already turned something
+If you already turned something
 into a spec via `to-spec` or a ticket via `to-tickets`, it's already agent-ready;
 running this over it again is wasted work.
 
@@ -27,17 +26,35 @@ this disclaimer:
 
 ## Roles
 
-**[CHANGED FROM ORIGINAL]** Five **category** roles instead of bug/enhancement:
+**Category** is a HOSPA **component** (exact name), not a
+label. Apply it with `jira_update_issue` on `components`. Do not invent GitHub-style
+type labels (`bi`, `infra`, `data-quality`).
 
-- `bi` — dashboard, report, metric definition, semantic layer change. Consumed directly
-  by a stakeholder.
-- `etl` — pipeline, ingestion, transformation, scheduling, data contract change. Produces
-  a data asset other work depends on.
-- `adhoc` — one-off question or number pull with no lasting artifact beyond an answer.
-- `data-quality` — bug in existing data: discrepancy, broken test/contract, backfill.
-- `infra` — tooling, CI/CD, warehouse cost/perf, access, scaffolding.
+Core four (cover most incoming work):
 
-Five **state** roles (unchanged from original):
+- `BI` — dashboards, charts, metric definitions consumed by a stakeholder
+- `ETL` — pipeline, ingestion, transformation, scheduling, data contract
+- `Ad-hoc` — one-off SQL / number pull, usually ≤2 story points
+- `DataOps` — git, VMs, templates, CI, warehouse access/cost, internal scaffolding
+
+Also valid HOSPA components; use these when they fit better, never invent new ones:
+
+- `A/B` — A/B tests
+- `Discovery` — research (deeper than ad-hoc, less than goal)
+- `Docs` — documentation
+- `Goal` — quarterly goal / epic wrapper
+- `Report` — presentations and write-up, form more than content
+
+**Bug** is an **issue type**, not a component. Use it for broken existing data
+(discrepancy, failed test/contract, backfill). A Bug often also has component `ETL`.
+Do not create a `data-quality` component.
+
+Jira allows several components on one ticket. Recommend a **primary** category. When
+applying, add/set that component; do not strip others already on the issue unless the
+user says so. If two primaries genuinely conflict, flag and ask.
+
+Five **state** roles (canonical names unchanged). They are **not** HOSPA labels. See
+`docs/agents/triage-labels.md` for how each maps onto Jira status/comments.
 
 - `needs-triage` — you need to evaluate
 - `needs-info` — waiting on requester for more information
@@ -45,16 +62,12 @@ Five **state** roles (unchanged from original):
 - `ready-for-human` — needs human implementation
 - `wontfix` — will not be actioned
 
-Every triaged item carries exactly one category role and one state role. If roles
-conflict, flag it and ask before doing anything else.
+Every triaged item carries one primary category and one state role.
 
-These are canonical role names — the actual label strings may differ per tracker. The
-mapping should have been provided by `/setup-matt-pocock-skills`; if not, run it first.
-
-State transitions: an unlabeled item goes to `needs-triage` first; from there to
-`needs-info`, `ready-for-agent`, `ready-for-human`, or `wontfix`. `needs-info` returns to
-`needs-triage` once the requester replies. You can override at any time — flag unusual
-transitions and ask before proceeding.
+State transitions: an item with no component and no triage notes goes to `needs-triage`
+first; from there to `needs-info`, `ready-for-agent`, `ready-for-human`, or `wontfix`.
+`needs-info` returns to `needs-triage` once the requester replies. You can override at
+any time — flag unusual transitions and ask before proceeding.
 
 ## Invocation
 
@@ -69,13 +82,13 @@ Invoke `/triage-analytics` and describe what you want in natural language:
 
 Query the tracker(s) and present three buckets, oldest first:
 
-1. **Unlabeled** — never triaged.
+1. **No component** — never categorised (and no triage notes).
 2. **`needs-triage`** — evaluation in progress.
 3. **`needs-info` with requester activity since the last triage notes** — needs
-   re-evaluation.
+   re-evaluation. In HOSPA this is often status **Need Info**.
 
-Show counts and a one-line summary per item, tagged with its likely type if you can tell
-from the title/body. Let the user pick.
+Show counts and a one-line summary per item, tagged with its likely component if you can
+tell from the title/body. Let the user pick.
 
 ## Triage a specific request
 
@@ -83,7 +96,7 @@ from the title/body. Let the user pick.
    PR, the diff too). Parse any prior triage notes so you don't re-ask resolved
    questions.
 
-   **[ADDED]** **Resolve the owning repo.** State explicitly which repo/codebase this
+   **Resolve the owning repo.** State explicitly which repo/codebase this
    belongs to. If it genuinely touches more than one, say so — this item will need
    `to-tickets` to split into per-repo units with blocking edges once triaged, don't
    force it into one repo.
@@ -94,16 +107,16 @@ from the title/body. Let the user pick.
    it's an already-implemented `wontfix` (step 5). (b) **prior rejection** — read
    `.out-of-scope/*.md` for that repo and surface anything that resembles this request.
 
-2. **Recommend.** State your category (bi/etl/adhoc/data-quality/infra), repo, and state
-   recommendation with reasoning, plus a brief summary of what you found — including
-   whether it's already implemented. Wait for direction.
+2. **Recommend.** State your primary category (HOSPA component name, or issue type
+   Bug), repo, and state recommendation with reasoning, plus a brief summary of what you
+   found — including whether it's already implemented. Wait for direction.
 
 3. **Verify the claim.** Before grilling, check the claim holds up:
-   - `data-quality` — reproduce the discrepancy from the reporter's description; trace
-     which model/table/pipeline stage introduced it.
-   - `etl`/`infra` PR — check out the diff, run the relevant tests or a dry run.
-   - `bi`/`adhoc` — confirm the requested metric/number is actually derivable from
-     available data before promising it.
+   - `Bug` (data discrepancy) — reproduce from the reporter's description; trace which
+     model/table/pipeline stage introduced it.
+   - `ETL` / `DataOps` PR — check out the diff, run the relevant tests or a dry run.
+   - `BI` / `Ad-hoc` / `Discovery` / `A/B` / `Report` — confirm the requested
+     metric/number is actually derivable from available data before promising it.
 
    Report what happened: confirmed (with the path/query that shows it), failed, or
    insufficient detail (a strong `needs-info` signal). A confirmed verification makes a
@@ -122,10 +135,11 @@ from the title/body. Let the user pick.
    - `wontfix` — close, with the comment depending on why:
      - **Already implemented** — point to where it lives; do not write to
        `.out-of-scope/`.
-     - **Rejected (`data-quality`, `infra`)** — polite explanation, then close.
-     - **Rejected (`bi`, `etl`, `adhoc`)** — write to `.out-of-scope/`, link from the
-       closing comment, then close, so the same dashboard/pipeline ask doesn't get
-       re-litigated next sprint.
+     - **Rejected (`Bug`, `DataOps`)** — polite explanation, then close (HOSPA status
+       **Cancelled** if that transition exists).
+     - **Rejected (`BI`, `ETL`, `Ad-hoc`, `Discovery`, `A/B`, `Report`)** — write to
+       `.out-of-scope/`, link from the closing comment, then close, so the same
+       dashboard/pipeline ask doesn't get re-litigated next sprint.
    - `needs-triage` — apply the role; optional comment if there's partial progress.
 
 ## Quick state override
