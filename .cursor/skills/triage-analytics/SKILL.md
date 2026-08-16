@@ -1,6 +1,6 @@
 ---
 name: triage-analytics
-description: Move incoming analytics engineering requests and external PRs through a state machine of triage roles — categorise by HOSPA component (BI, ETL, Ad-hoc, DataOps, A/B, Discovery, Docs, Goal, Report) or issue type Bug, resolve the owning repo, verify, grill if needed, and write agent-ready briefs. Fork of mattpocock/skills' triage, adapted for cross-repo analytics work.
+description: Move incoming analytics engineering requests and external PRs through a state machine of triage roles — categorise by HOSPA component (BI, ETL, Ad-hoc, DataOps, A/B, Discovery, Docs, Goal, Report) or issue type Bug, resolve the owning repo, verify, score the context gate, grill until pass, and write agent-ready briefs. Fork of mattpocock/skills' triage, adapted for cross-repo analytics work.
 disable-model-invocation: true
 ---
 
@@ -9,9 +9,12 @@ disable-model-invocation: true
 Move requests on the project issue tracker(s) through a small state machine of triage
 roles. This is a fork of mattpocock/skills' `triage` — the state machine, grilling,
 verify step, and out-of-scope logging are unchanged because they're already
-domain-agnostic. Two things are different from the original, both marked below:
-the category roles are HOSPA Jira components (not GitHub labels), and there's an
-explicit repo-resolution step since your work spans repos rather than living in one.
+domain-agnostic. Three things are different from the original: the category roles
+are HOSPA Jira components (not GitHub labels); there's an explicit repo-resolution
+step since your work spans repos rather than living in one; and `ready-for-agent`
+means a **pass** on the shared [context gate](../../../docs/agents/context-gate.md),
+not a thin brief. `/do-jira-task` re-scores that same gate and bounces here on fail
+— it does not grill.
 
 If you already turned something
 into a spec via `to-spec` or a ticket via `to-tickets`, it's already agent-ready;
@@ -58,7 +61,7 @@ Five **state** roles (canonical names unchanged). They are **not** HOSPA labels.
 
 - `needs-triage` — you need to evaluate
 - `needs-info` — waiting on requester for more information
-- `ready-for-agent` — fully specified, ready for an AFK agent
+- `ready-for-agent` — context-gate **pass**, ready for an AFK agent
 - `ready-for-human` — needs human implementation
 - `wontfix` — will not be actioned
 
@@ -111,7 +114,7 @@ tell from the title/body. Let the user pick.
    Bug), repo, and state recommendation with reasoning, plus a brief summary of what you
    found — including whether it's already implemented. Wait for direction.
 
-3. **Verify the claim.** Before grilling, check the claim holds up:
+3. **Verify the claim.** Before scoring the gate, check the claim holds up:
    - `Bug` (data discrepancy) — reproduce from the reporter's description; trace which
      model/table/pipeline stage introduced it.
    - `ETL` / `DataOps` PR — check out the diff, run the relevant tests or a dry run.
@@ -122,15 +125,27 @@ tell from the title/body. Let the user pick.
    insufficient detail (a strong `needs-info` signal). A confirmed verification makes a
    much stronger agent brief.
 
-4. **Grill (if needed).** If underspecified, run `/grilling` and `/domain-modeling`
-   together — a round of questions at a time, sharpening domain terms and updating
-   `CONTEXT.md`/ADRs inline as decisions land.
+4. **Context gate, then grill until pass.** Score the ticket against
+   [context-gate.md](../../../docs/agents/context-gate.md) for its component(s). Show the
+   result (`pass` / `thin` / `blocked`) and any `BLOCKER:` rows.
+
+   - **pass** → `ready-for-agent`. Durable answers belong on the ticket (description /
+     agent brief), not only in chat.
+   - **thin** → `ready-for-human`, or `ready-for-agent` only if remaining gaps cannot
+     block the brief. Name the gaps in the brief.
+   - **blocked** → grill, or `needs-info` if the requester must answer.
+
+   Grill with `/grilling` and `/domain-modeling` together — a round of questions at a
+   time, sharpening domain terms and updating `CONTEXT.md`/ADRs inline as decisions
+   land. After each round, re-score the gate. Draft description / DoD / link edits
+   (do not apply until confirmed). Do not stamp `ready-for-agent` on a blocked gate.
 
 5. **Apply the outcome:**
-   - `ready-for-agent` — post an agent brief comment (title, type, repo, acceptance
-     criteria, links — same shape `/to-issues` and `/to-spec` expect downstream).
+   - `ready-for-agent` — gate **pass** (or thin with non-blocking gaps named). Post an
+     agent brief comment (title, type, repo, acceptance criteria, filled gate fields,
+     links — same shape `/to-issues` and `/to-spec` expect downstream).
    - `ready-for-human` — same structure, plus why it can't be delegated (judgment calls,
-     stakeholder sign-off, manual validation).
+     stakeholder sign-off, manual validation, or thin-gate gaps).
    - `needs-info` — post triage notes (template below).
    - `wontfix` — close, with the comment depending on why:
      - **Already implemented** — point to where it lives; do not write to
@@ -146,7 +161,8 @@ tell from the title/body. Let the user pick.
 
 If told "move #42 to ready-for-agent," trust it and apply the role directly. Confirm
 what you're about to do, then act. Skip grilling. If moving to `ready-for-agent` without
-a grilling session, ask whether an agent brief should still be written.
+a passing context-gate score, say so and ask whether an agent brief should still be
+written — `/do-jira-task` will bounce the ticket back here if the gate is still blocked.
 
 ## Needs-info template
 
@@ -177,5 +193,5 @@ resolved questions.
 
 Once an item reaches `ready-for-agent` or `ready-for-human`, it's ready for
 `/plan-analytics-sprint` to pull into a sprint. Don't re-run `/triage-analytics` on it
-again — that's the "don't triage what's already agent-ready" rule from the original
-skill, and it still applies here.
+again unless `/do-jira-task` bounced it — a bounce means the gate failed, so it was
+never actually agent-ready.

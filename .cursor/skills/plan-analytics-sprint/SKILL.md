@@ -11,9 +11,10 @@ packing and sequencing that bag — not decomposing any one ticket's implementat
 
 ## Prerequisites
 
-- Every candidate ticket has been through `/triage-analytics-task` (has type, repo,
-  acceptance criteria, estimate). If any ticket is missing these, run that skill on it
-  first — don't guess the fields yourself.
+- Every candidate ticket has been through `/triage-analytics` (has type, repo,
+  acceptance criteria, estimate, and a context-gate **pass** — or thin with named
+  non-blocking gaps). If any ticket is missing these, run that skill on it first —
+  don't guess the fields yourself.
 
 ## Step 1 — Collect the candidate pool
 
@@ -78,5 +79,6 @@ note (check the box, add a one-line outcome).
 ## Boundaries
 
 - Does not write code or specs for individual tickets — that's `/to-spec` and `/implement`.
-- Does not re-triage — if a ticket lacks type/repo/acceptance criteria, send it back to
-  `/triage-analytics-task` rather than inventing the missing fields here.
+- Does not re-triage — if a ticket lacks type/repo/acceptance criteria or failed the
+  context gate, send it back to `/triage-analytics` rather than inventing the missing
+  fields here.

@@ -37,7 +37,7 @@ Copy into `hospa_<n>/PLAN.md` (or `sheye_<n>/PLAN.md`). Fill from Ingest + gate;
 
 ## Gate checklist
 
-<!-- paste relevant rows from context-gate.md with ok/missing/n/a -->
+<!-- paste relevant rows from docs/agents/context-gate.md with ok/missing/n/a -->
 
 | Check | Result | Note |
 |-------|--------|------|

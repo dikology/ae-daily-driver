@@ -16,7 +16,7 @@ the tracker.
   and its verdict.
 - For adhoc/research tickets: the findings produced by `/research`, and where they were
   saved.
-- Any acceptance criteria from the original ticket (drafted by `/triage-analytics-task`)
+- Any acceptance criteria from the original ticket (drafted by `/triage-analytics`)
   — check them off explicitly, one by one. If any criterion was not met, say so — do not
   omit it.
 
