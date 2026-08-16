@@ -12,6 +12,10 @@ Issues and specs live as local markdown under `.scratch/`. See `docs/agents/issu
 
 Default role labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
 
+### Context gate
+
+Shared fail-closed ticket bar. `/triage-analytics` fills until pass; `/do-jira-task` re-scores and bounces on fail. See `docs/agents/context-gate.md`.
+
 ### Domain docs
 
 Single-context layout (`CONTEXT.md` + `docs/adr/`). See `docs/agents/domain.md`.
