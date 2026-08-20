@@ -7,7 +7,7 @@ description: Interactive post-session retrospective that captures learnings, upd
 
 Interactive post-session retro. Scans Cursor agent transcripts, asks focused questions, proposes concrete actions the user approves in one step.
 
-This is a **session** retro (skills, corrections, rules). It is not journal reflection (`/reflection`) and not a ticket-scoped retro (`do-jira-task` Phase 6).
+This is a **session** retro (skills, corrections, rules).
 
 ## Modes
 
