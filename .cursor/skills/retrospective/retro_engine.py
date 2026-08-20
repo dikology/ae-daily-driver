@@ -19,7 +19,7 @@ class Mode(Enum):
 class CandidateType(Enum):
     SKILL_UPDATE = "skill_update"
     FEEDBACK_MEMORY = "feedback_memory"
-    CLAUDE_MD_RULE = "claude_md_rule"
+    AGENTS_MD_RULE = "agents_md_rule"
     LINEAR_TASK = "linear_task"
 
 

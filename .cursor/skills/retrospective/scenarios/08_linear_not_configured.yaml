@@ -1,6 +1,6 @@
 name: linear-not-configured
 description: >
-  Session where a bug worth tracking was found, but Linear CLI is not configured.
+  Session where a bug worth tracking was found, but Linear MCP is not configured.
   Linear candidate should be omitted gracefully.
 
 mock_session:
@@ -27,5 +27,5 @@ expected:
       contains: "group chats"
   must_not_include:
     - type: linear_task
-      reason: "linear CLI not configured"
+      reason: "linear MCP not configured"
   skip_triggered: false

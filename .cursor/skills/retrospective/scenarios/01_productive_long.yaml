@@ -1,6 +1,6 @@
 name: productive-long-session
 description: >
-  90-min session: 3 skills invoked, telegram failed, user corrected Claude twice.
+  90-min session: 3 skills invoked, telegram failed, user corrected the agent twice.
   Should trigger full mode with skill update and feedback memory candidates.
 
 mock_session:
