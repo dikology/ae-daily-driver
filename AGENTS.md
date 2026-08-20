@@ -19,3 +19,7 @@ Shared fail-closed ticket bar. `/triage-analytics` fills until pass; `/do-jira-t
 ### Domain docs
 
 Single-context layout (`CONTEXT.md` + `docs/adr/`). See `docs/agents/domain.md`.
+
+### Sprint digest
+
+Narrative briefing of story-worthy increments from a Jira sprint (HTML + chat summary). Canonical: `skills/sprint-digest/`; runtime copy under `.cursor/skills/sprint-digest/`. Distinct from status reports, WIP dashboards, sprint packing, and context-gate triage — see the skill boundary table.
