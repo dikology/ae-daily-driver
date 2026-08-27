@@ -11,7 +11,7 @@ An increment is story-worthy only when all four are established (or marked
 | # | Field | Meaning |
 |---|--------|---------|
 | S1 | **Outcome / capability** | What became true, shippable, or learnable — not the ticket title alone |
-| S2 | **Evidence** | Jira comment, MR, dashboard URL, query result, local `hospa_*` artifact, changelog — named and linkable |
+| S2 | **Evidence** | Jira comment, MR, dashboard URL, query result, local ticket-folder artifact, changelog — named and linkable |
 | S3 | **Audience** | Who cares (stakeholder role, product area, team) |
 | S4 | **Consequence / next decision** | Why it matters now, or what decision it unlocks / blocks |
 
@@ -34,7 +34,7 @@ Prefer **strong** for headlines. **Weak** never leads the digest.
 | --- | --- |
 | **headline** | Strong (or medium after grill) S1–S4; material for this audience |
 | **supporting** | Enables or deepens a headline; or solid on its own but secondary |
-| **watch** | High value but blocked / Need Info / decision pending; or strong risk |
+| **watch** | High value but blocked / waiting-on-requester / decision pending; or strong risk |
 | **omit** | Hygiene, renames, routine ETL without consumer impact, duplicate work, cancelled noise |
 
 Multiple tickets may form **one** increment when they share one outcome (e.g. ETL

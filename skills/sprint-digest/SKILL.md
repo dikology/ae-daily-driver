@@ -26,9 +26,9 @@ not a WIP board, not a packing plan.
 ticket with no audience consequence is omit; a thin ticket that unlocked a
 stakeholder decision can be a headline.
 
-In consuming Jira repos (e.g. `tasks`), read
-`docs/agents/atlassian-skills.md` before querying. Default project **HOSPA**.
-Browse links: `https://tasks.sberdevices.ru/browse/{KEY}`.
+Needs from the consuming repo (ask if missing): Jira **project / board / sprint**,
+and how to form issue browse URLs (the issue’s web URL from Jira MCP, or the
+issue-tracker base URL + `/browse/{KEY}`). Read any local Jira/MCP notes if present.
 
 Jira is **read-only** unless the user separately confirms a write.
 
@@ -44,7 +44,7 @@ Sprint digest:
 - [ ] 4. Shortlist grill (Pass 2)
 - [ ] 5. Compose digest
 - [ ] 6. Publish HTML + chat summary
-- [ ] 7. Visual pass (impeccable, if HTML in tasks)
+- [ ] 7. Visual pass (impeccable, if the consuming repo has it)
 ```
 
 ### 1. Scope
@@ -53,7 +53,7 @@ Clarify before querying:
 
 - Project / board / sprint (do not guess; ask if ambiguous)
 - Audience (stakeholder briefing vs team retro)
-- Language (default Russian for stakeholder HTML in HOSPA)
+- Language (ask; use the user’s request or the consuming repo’s stakeholder language)
 - Window (sprint dates, or named sprint)
 
 ### 2. Gather evidence
@@ -65,7 +65,7 @@ For every **candidate** (not every ticket on first pass):
 
 1. `jira_get_issue` with comments (`comment_limit` high enough) and changelog if useful.
 2. Read description, components, links, related keys.
-3. Consult local domain: `CONTEXT.md`, ticket folders (`hospa_*`), sibling OUTBOX,
+3. Consult local domain: `CONTEXT.md`, ticket working dirs if present, sibling OUTBOX,
    OpenMetadata / Metabase / warehouse only when the claim needs verification.
 4. Do **not** invent metrics, story points, burndown, or impact numbers.
 
@@ -141,7 +141,7 @@ Prohibit:
 **HTML rules (consuming repos with PRODUCT/DESIGN):**
 
 - Single self-contained file; inline CSS/JS; data as JSON if charts used.
-- Follow root `DESIGN.md` / `PRODUCT.md` (Plasma-adapted editorial report surface).
+- Follow root `DESIGN.md` / `PRODUCT.md` if the consuming repo has them.
 - Charts optional and subordinate; if present, one claim per visual + table of the
   same numbers (`dataviz` Section A).
 - Keep Jira keys and status names verbatim; body language per PRODUCT.md.
@@ -150,7 +150,7 @@ Prohibit:
 
 ### 7. Visual pass
 
-In `tasks` (or any repo with impeccable): after HTML exists,
+If the consuming repo has impeccable: after HTML exists,
 
 ```bash
 node .cursor/skills/impeccable/scripts/context.mjs --target analyses/<file>.html

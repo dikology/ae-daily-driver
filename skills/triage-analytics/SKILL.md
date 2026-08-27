@@ -1,6 +1,6 @@
 ---
 name: triage-analytics
-description: Move incoming analytics engineering requests and external PRs through a state machine of triage roles — categorise by HOSPA component (BI, ETL, Ad-hoc, DataOps, A/B, Discovery, Docs, Goal, Report) or issue type Bug, resolve the owning repo, verify, score the context gate, grill until pass, and write agent-ready briefs. Fork of mattpocock/skills' triage, adapted for cross-repo analytics work.
+description: Move incoming analytics engineering requests and external PRs through a state machine of triage roles — categorise by issue-tracker component (BI, ETL, Ad-hoc, DataOps, A/B, Discovery, Docs, Goal, Report) or issue type Bug, resolve the owning repo, verify, score the context gate, grill until pass, and write agent-ready briefs. Fork of mattpocock/skills' triage, adapted for cross-repo analytics work.
 disable-model-invocation: true
 ---
 
@@ -10,7 +10,7 @@ Move requests on the project issue tracker(s) through a small state machine of t
 roles. This is a fork of mattpocock/skills' `triage` — the state machine, grilling,
 verify step, and out-of-scope logging are unchanged because they're already
 domain-agnostic. Three things are different from the original: the category roles
-are HOSPA Jira components (not GitHub labels); there's an explicit repo-resolution
+are issue-tracker components (not GitHub labels); there's an explicit repo-resolution
 step since your work spans repos rather than living in one; and `ready-for-agent`
 means a **pass** on the shared [context gate](../../../docs/agents/context-gate.md),
 not a thin brief. `/do-jira-task` re-scores that same gate and bounces here on fail
@@ -29,7 +29,7 @@ this disclaimer:
 
 ## Roles
 
-**Category** is a HOSPA **component** (exact name), not a
+**Category** is a tracker **component** (exact name), not a
 label. Apply it with `jira_update_issue` on `components`. Do not invent GitHub-style
 type labels (`bi`, `infra`, `data-quality`).
 
@@ -40,7 +40,7 @@ Core four (cover most incoming work):
 - `Ad-hoc` — one-off SQL / number pull, usually ≤2 story points
 - `DataOps` — git, VMs, templates, CI, warehouse access/cost, internal scaffolding
 
-Also valid HOSPA components; use these when they fit better, never invent new ones:
+Also valid components; use these when they fit better, never invent new ones:
 
 - `A/B` — A/B tests
 - `Discovery` — research (deeper than ad-hoc, less than goal)
@@ -56,7 +56,7 @@ Jira allows several components on one ticket. Recommend a **primary** category. 
 applying, add/set that component; do not strip others already on the issue unless the
 user says so. If two primaries genuinely conflict, flag and ask.
 
-Five **state** roles (canonical names unchanged). They are **not** HOSPA labels. See
+Five **state** roles (canonical names unchanged). They are **not** tracker components. See
 `docs/agents/triage-labels.md` for how each maps onto Jira status/comments.
 
 - `needs-triage` — you need to evaluate
@@ -88,7 +88,8 @@ Query the tracker(s) and present three buckets, oldest first:
 1. **No component** — never categorised (and no triage notes).
 2. **`needs-triage`** — evaluation in progress.
 3. **`needs-info` with requester activity since the last triage notes** — needs
-   re-evaluation. In HOSPA this is often status **Need Info**.
+   re-evaluation. Include tickets in a waiting-on-requester tracker status if the
+   project uses one.
 
 Show counts and a one-line summary per item, tagged with its likely component if you can
 tell from the title/body. Let the user pick.
@@ -110,7 +111,7 @@ tell from the title/body. Let the user pick.
    it's an already-implemented `wontfix` (step 5). (b) **prior rejection** — read
    `.out-of-scope/*.md` for that repo and surface anything that resembles this request.
 
-2. **Recommend.** State your primary category (HOSPA component name, or issue type
+2. **Recommend.** State your primary category (tracker component name, or issue type
    Bug), repo, and state recommendation with reasoning, plus a brief summary of what you
    found — including whether it's already implemented. Wait for direction.
 
@@ -150,8 +151,8 @@ tell from the title/body. Let the user pick.
    - `wontfix` — close, with the comment depending on why:
      - **Already implemented** — point to where it lives; do not write to
        `.out-of-scope/`.
-     - **Rejected (`Bug`, `DataOps`)** — polite explanation, then close (HOSPA status
-       **Cancelled** if that transition exists).
+     - **Rejected (`Bug`, `DataOps`)** — polite explanation, then close (the
+       tracker’s cancelled / rejected status if that transition exists).
      - **Rejected (`BI`, `ETL`, `Ad-hoc`, `Discovery`, `A/B`, `Report`)** — write to
        `.out-of-scope/`, link from the closing comment, then close, so the same
        dashboard/pipeline ask doesn't get re-litigated next sprint.

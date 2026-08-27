@@ -8,7 +8,7 @@ Shared by `/triage-analytics` (fill until pass — primary) and `/do-jira-task` 
 
 - **pass** — no `missing` on required items for this component type. Triage: `ready-for-agent`. Execute: Plan.
 - **thin** — goal/DoD mostly clear, but 1–2 non-blocking gaps. Triage: `ready-for-human`, or `ready-for-agent` only if remaining gaps cannot block the brief. Execute: Plan with gaps; Execute only independent steps.
-- **blocked** — any required item is `missing`, or status is Need Info without a written resolution path. Triage: grill or `needs-info`. Execute: bounce to `/triage-analytics`. Do not Execute.
+- **blocked** — any required item is `missing`, or status is waiting-on-requester without a written resolution path. Triage: grill or `needs-info`. Execute: bounce to `/triage-analytics`. Do not Execute.
 
 Mark blockers with `BLOCKER:` in triage notes and in PLAN.md Gaps.
 
@@ -21,7 +21,7 @@ Mark blockers with `BLOCKER:` in triage notes and in PLAN.md Gaps.
 | U1 | Goal clear from description + comments (not summary alone) | yes |
 | U2 | Non-goals or out-of-scope stated, or explicitly “none” | prefer |
 | U3 | Definition of Done is verifiable (artifact + acceptance) | yes |
-| U4 | Stakeholder / requester known if clarification needed | prefer; **yes** if Need Info |
+| U4 | Stakeholder / requester known if clarification needed | prefer; **yes** if waiting-on-requester |
 | U5 | Links present or marked n/a: Metabase / Confluence / Figma / sibling path / contract | yes (each must be link or n/a) |
 
 Issue type **Bug** still uses Universal plus the matching component section (often ETL). Reproduction belongs in triage verify, not as a substitute for these rows.
@@ -30,7 +30,7 @@ Issue type **Bug** still uses Universal plus the matching component section (oft
 
 ## By component
 
-Use the HOSPA component(s) from triage. If multiple, apply **all** matching sections. Never invent a component.
+Use the tracker component(s) from triage. If multiple, apply **all** matching sections. Never invent a component.
 
 ### BI
 
@@ -68,7 +68,7 @@ Use the HOSPA component(s) from triage. If multiple, apply **all** matching sect
 | D1 | Research question in one sentence |
 | D2 | Done criterion (“enough when…”) |
 | D3 | Where to start lineage (OpenMetadata / dbt / metabase / code path) |
-| D4 | Scope boundaries (which `*_state` / features / products) |
+| D4 | Scope boundaries (which products / features / slices) |
 
 ### A/B
 
@@ -94,7 +94,7 @@ Use the HOSPA component(s) from triage. If multiple, apply **all** matching sect
 | # | Check |
 |---|--------|
 | C1 | Source artifact (Figma / Confluence / ticket links) |
-| C2 | Deliverable location (Confluence page, repo path, analytics-context, …) |
+| C2 | Deliverable location (wiki page, repo path, dashboard catalog, …) |
 | C3 | Audience and format (event map table, diagram, both) |
 | C4 | Relationship to existing docs (replace / extend / new) |
 
@@ -118,12 +118,12 @@ Use the HOSPA component(s) from triage. If multiple, apply **all** matching sect
 
 ## Cross-repo hints
 
-When gate mentions models/contracts/catalog:
+When gate mentions models/contracts/catalog, look in the sibling homes named by the consuming repo’s workspace map (dbt projects, semantic layer, dashboard catalog). Typical split:
 
 | Need | Look in |
 |------|---------|
-| ClickHouse gold/silver SQL | `ch_dbt` |
-| DWS/Postgres marts | `dbt-smarthome` |
-| Ad-hoc SQL / EDA | `tasks` (`hospa_*`) |
+| ClickHouse models | ClickHouse dbt project |
+| Warehouse / Postgres marts | warehouse dbt project |
+| Ad-hoc SQL / EDA | consuming repo (ticket working dir) |
 
-Do not edit sibling repos while scoring or executing — append OUTBOX in `tasks` when a lasting fix belongs elsewhere.
+Do not edit sibling repos while scoring or executing — append OUTBOX in the consuming repo when a lasting fix belongs elsewhere.

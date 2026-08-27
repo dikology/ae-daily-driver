@@ -13,7 +13,7 @@ A sibling (or other) repository where Library skills are installed or invoked du
 _Avoid_: host, runtime (ambiguous)
 
 **Sibling home**:
-The consuming repo that owns durable truth for a class of entities (e.g. `mdm` for metrics and glossary terms, `analytics-context` for Metabase unwrap, a dbt project for models, warehouse/catalog for sources).
+The consuming repo that owns durable truth for a class of entities (e.g. a semantic-layer repo for metrics and glossary terms, a dashboard catalog for Metabase unwrap, a dbt project for models, warehouse/catalog for sources).
 _Avoid_: source of truth (ambiguous), mirror, cache
 
 **AE session**:
@@ -30,18 +30,18 @@ _Avoid_: report, chart (too narrow)
 
 **Source**:
 An upstream table or raw input that feeds models or dashboards, before or outside the dbt model graph as treated in unwrap.
-_Avoid_: table (alone), dataset (overloaded with mdm)
+_Avoid_: table (alone), dataset (overloaded with semantic-layer dataset)
 
 **dbt model**:
-A model in a dbt project (`dbt-smarthome`, `ch_dbt`, etc.) representing transformed data.
+A model in a dbt project (warehouse or ClickHouse sibling home) representing transformed data.
 _Avoid_: table, mart (unless specified)
 
 **Metric**:
-A governed business measure defined in the semantic layer (`mdm`), not an ad-hoc calculation in a chart.
-_Avoid_: KPI (unless synonymous in mdm), measure (ambiguous)
+A governed business measure defined in the semantic layer, not an ad-hoc calculation in a chart.
+_Avoid_: KPI (unless synonymous there), measure (ambiguous)
 
 **Glossary term**:
-A human-curated business definition in `mdm` (or equivalent), distinct from a metric.
+A human-curated business definition in the semantic layer (or equivalent), distinct from a metric.
 _Avoid_: concept, definition (alone)
 
 **Unwrap**:
@@ -65,7 +65,7 @@ The set of entities an AE session contacted. Built from Jira issue signals (fiel
 _Avoid_: full lineage graph, inventory dump
 
 **Install**:
-Copying Library skills/rules into a consuming repo (per-repo install). The showcase story is steal-by-copy; there is no shared runtime package assumed. First dogfood target: `tasks`.
+Copying Library skills/rules into a consuming repo (per-repo install). The showcase story is steal-by-copy; there is no shared runtime package assumed. First dogfood target: a consuming analytics repo.
 _Avoid_: symlink-from-library, global-only distribution
 
 **do-jira-task**:

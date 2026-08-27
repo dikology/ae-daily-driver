@@ -12,7 +12,7 @@ Steal the kit. Run it in the repos where the work happens. This repo is not a wi
 | Presentable, copy-installable kit | Where AE sessions actually run |
 | Glossary + ADRs for the kit itself | Dashboards, sources, dbt models, metrics, glossary |
 
-**Install model:** copy into each consuming repo (first dogfood target: `tasks`). No shared runtime package.
+**Install model:** copy into each consuming repo (first dogfood: a consuming analytics repo). No shared runtime package.
 
 ## Intended layout
 
@@ -59,7 +59,7 @@ Useful skills already installed under `.cursor/skills/` (Matt Pocock set + local
 - [x] Domain language + ADRs
 - [ ] Root `skills/` / `mcp/` populated as the showcase surface
 - [ ] Import `do-jira-task` from elsewhere; compose with unwrap
-- [ ] Ship unwrap skill; dogfood in `tasks`
+- [ ] Ship unwrap skill; dogfood in a consuming analytics repo
 - [ ] MCP examples
 
 Glossary terms and deferred items live in [CONTEXT.md](CONTEXT.md).

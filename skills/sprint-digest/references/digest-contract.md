@@ -10,7 +10,7 @@ analyses/YYYY-MM-DD_<sprint-slug>-digest.html
 
 Examples:
 
-- `analyses/2026-08-20_hospa-26-08-21-digest.html`
+- `analyses/2026-08-20_sprint-26-08-21-digest.html`
 - Sprint slug: lowercase, hyphens; prefer sprint name from Jira.
 
 Optional markdown twin (only if asked): `sprint_<id>/DIGEST.md`.
@@ -60,8 +60,8 @@ section.appendix
 
 - Page `h1` and each increment `h2` are **conclusions**, not “Sprint digest” or
   “Chart 1”.
-- Russian body by default for HOSPA stakeholder briefings; keep Jira keys and
-  status names verbatim.
+- Body language follows the user’s request (or the consuming repo’s stakeholder
+  language). Keep issue keys and status names verbatim.
 
 ### Charts
 
@@ -84,9 +84,9 @@ do not silently drop them from the lead without moving them to **watch** or
 
 ## Visual system
 
-In `tasks`: follow root `DESIGN.md` / `PRODUCT.md` (Plasma-adapted editorial
-report). After write: impeccable `audit` → `distill` / `typeset` / `layout` /
-`polish`. No `bolder` / `delight` / `overdrive` / `colorize`.
+If the consuming repo has `DESIGN.md` / `PRODUCT.md`, follow those. After write:
+impeccable `audit` → `distill` / `typeset` / `layout` / `polish` when that skill
+is installed. No `bolder` / `delight` / `overdrive` / `colorize`.
 
 ## Reads vs writes
 

@@ -1,14 +1,14 @@
 # PLAN.md template
 
-Copy into `hospa_<n>/PLAN.md` (or `sheye_<n>/PLAN.md`). Fill from Ingest + gate; leave Execution outline steps `blocked-by:…` until ready.
+Copy into the ticket working directory as `PLAN.md` (create `{issue-key}/` if the consuming repo uses per-ticket folders). Fill from Ingest + gate; leave Execution outline steps `blocked-by:…` until ready.
 
 ```markdown
-# HOSPA-<n> — <summary>
+# {ISSUE-KEY} — <summary>
 
-- **Jira:** https://tasks.sberdevices.ru/browse/HOSPA-<n>
+- **Issue:** <issue-tracker browse URL>
 - **Sprint:** <name or n/a>
 - **Components:** <BI | ETL | …>
-- **Status (Jira):** …
+- **Status (tracker):** …
 - **Gate:** pass | thin | blocked
 - **PLAN updated:** YYYY-MM-DD
 
@@ -22,7 +22,7 @@ Copy into `hospa_<n>/PLAN.md` (or `sheye_<n>/PLAN.md`). Fill from Ingest + gate;
 
 ## Known facts
 
-- … (source: Jira description | comment | file | URL)
+- … (source: issue description | comment | file | URL)
 
 ## Context map
 
@@ -30,9 +30,9 @@ Copy into `hospa_<n>/PLAN.md` (or `sheye_<n>/PLAN.md`). Fill from Ingest + gate;
 |------|-----|-------|
 | Metabase | | |
 | Warehouse / dbt | | |
-| mdm | | |
-| analytics-context | | |
-| Local folder | hospa_<n>/ | |
+| Semantic layer | | |
+| Dashboard catalog | | |
+| Local folder | {issue-key}/ | |
 | People | | |
 
 ## Gate checklist
@@ -55,7 +55,7 @@ Copy into `hospa_<n>/PLAN.md` (or `sheye_<n>/PLAN.md`). Fill from Ingest + gate;
 1. …
 2. …
 
-## Proposed Jira description edits
+## Proposed issue description edits
 
 <!-- draft only; apply after user OK -->
 

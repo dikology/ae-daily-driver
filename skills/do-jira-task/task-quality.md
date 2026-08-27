@@ -1,14 +1,14 @@
 # Task quality (Jira culture)
 
-Living checklist for how HOSPA/SHEYE tickets should look so `/triage-analytics` can pass the [context gate](../../../docs/agents/context-gate.md) without guessing, and `/do-jira-task` can re-score without bouncing. Grow this file from sprint retros — one bullet per repeated gap.
+Living checklist for how issue-tracker tickets should look so `/triage-analytics` can pass the [context gate](../../../docs/agents/context-gate.md) without guessing, and `/do-jira-task` can re-score without bouncing. Grow this file from sprint retros — one bullet per repeated gap.
 
 ## Minimum ticket shape
 
-1. **Summary** — outcome, not activity (“Воронка апсейла шаблонов на дашборде”, not “посмотреть события”).
+1. **Summary** — outcome, not activity (“Checkout funnel on the revenue dashboard”, not “look at events”).
 2. **Description** — goal, scope, DoD, links. Comments are history; durable decisions move into description.
-3. **Components** — primary HOSPA component (drives the [context-gate](../../../docs/agents/context-gate.md) section).
+3. **Components** — primary tracker component (drives the [context-gate](../../../docs/agents/context-gate.md) section).
 4. **Links** — Metabase / Confluence / Figma / related tickets / sibling repo paths. If none apply, write `n/a` in description.
-5. **Need Info** — name who/what is missing and the next meeting/thread; do not leave empty Need Info.
+5. **Needs-info** — name who/what is missing and the next meeting/thread; do not leave an empty waiting-on-requester status.
 
 ## By type (expectations)
 
@@ -61,13 +61,13 @@ Living checklist for how HOSPA/SHEYE tickets should look so `/triage-analytics` 
 
 | Artifact | Prefer owning repo |
 |----------|-------------------|
-| Metric/dataset contract | mdm |
-| CH model | ch_dbt |
-| DWS model | dbt-smarthome |
-| Metabase catalog note | analytics-context |
-| Ad-hoc EDA / ticket scratch | tasks (`hospa_*`) |
+| Metric/dataset contract | semantic layer / metrics repo |
+| ClickHouse model | ClickHouse dbt project |
+| Warehouse mart | warehouse dbt project |
+| Metabase catalog note | dashboard catalog |
+| Ad-hoc EDA / ticket scratch | consuming repo (`{issue-key}/`) |
 
-If work in `tasks` discovers a lasting rule, flag OUTBOX → owning repo; do not silently patch siblings.
+If work in the consuming repo discovers a lasting rule, flag OUTBOX → owning repo; do not silently patch siblings.
 
 ## Sprint learning log
 
