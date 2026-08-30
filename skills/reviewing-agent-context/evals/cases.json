@@ -1,0 +1,66 @@
+{
+  "skill_name": "reviewing-agent-context",
+  "trigger": {
+    "positive": [
+      { "prompt": "Audit the agent context in this repo — what should live in AGENTS.md vs a skill?", "top_k": 1 },
+      { "prompt": "Our skills library has grown messy and agents keep ignoring the conventions. Review it.", "top_k": 3 },
+      { "prompt": "Which of our instruction files and rules are actually loaded, and what do they cost?", "top_k": 3 }
+    ],
+    "negative": [
+      { "prompt": "My agent forgot the project conventions mid-session, fix its context", "owner": "context-engineering" },
+      { "prompt": "Review this pull request for bugs", "owner": "code-review-and-quality" }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "kind": "execution",
+      "prompt": "Audit the agent context in this repository and produce the full report.",
+      "expected_output": "An eight-section report whose inventory, load map and rubric findings come from the validator, with each judgment finding tied to a rubric line or a named context-engineering anti-pattern.",
+      "expectations": [
+        "scripts/audit_context.py is executed against the repo rather than the inventory being assembled by hand",
+        "The report contains all eight sections from references/report-template.md, in order",
+        "The always-tier token budget is stated as a number and includes every skill's frontmatter description, not only the root instruction files",
+        "Every finding cites a rubric line (R1-R8) or a named anti-pattern from the context-engineering skill",
+        "Findings that could not be evidenced appear under Unverified rather than in the findings tables"
+      ]
+    },
+    {
+      "id": 2,
+      "kind": "execution",
+      "prompt": "A skill in this repo links to a shared doc with a path that does not resolve. Find it and say where the content belongs.",
+      "expected_output": "The broken links identified from validator output, with a placement decision taken on the relocation ladder rather than an ad-hoc fix.",
+      "expectations": [
+        "The unresolved links are reported with file and line, taken from the validator rather than by reading each file",
+        "The response distinguishes a genuinely broken link from a path that resolves only in a consuming repo",
+        "A destination rung from the relocation ladder is named for the shared content, with the rung's test applied",
+        "The fix is concrete (a specific path or a specific move), not 'consider revising'"
+      ]
+    },
+    {
+      "id": 3,
+      "kind": "execution",
+      "prompt": "Cut the always-loaded context in this repo and prove the cut did not break anything.",
+      "expected_output": "A measured before/after always-tier budget plus an eval suite with baselines recorded before the change.",
+      "expectations": [
+        "Before and after always-tier token numbers are both measured with the validator, not estimated",
+        "At least three eval cases exist and each targets a specific finding from the report",
+        "Baselines are recorded on the pre-change tree, before any file is moved",
+        "Cases that pass both before and after the change are reported as proving nothing rather than as successes",
+        "Any regression is reported rather than omitted"
+      ]
+    },
+    {
+      "id": 4,
+      "kind": "execution",
+      "prompt": "The context-engineering skill is not installed here. Audit the repo anyway.",
+      "expected_output": "A rubric-only audit that declares the missing source in the header instead of reconstructing it.",
+      "expectations": [
+        "The absence of the context-engineering skill is stated in the report header",
+        "The operating model is not reconstructed from memory or invented",
+        "The rubric half of the audit is still completed in full",
+        "Findings that would have required the missing source are listed under Unverified"
+      ]
+    }
+  ]
+}
