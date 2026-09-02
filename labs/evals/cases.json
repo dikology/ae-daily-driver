@@ -1,0 +1,76 @@
+{
+  "skill_name": "sprint-digest",
+  "trigger": {
+    "positive": [
+      { "prompt": "Give me a sprint digest for the analytics board — what actually became true this sprint?", "top_k": 1 },
+      { "prompt": "I need a stakeholder briefing on the meaningful increments from sprint 26-08.", "top_k": 1 },
+      { "prompt": "Turn the last sprint into a story I can send to the CS lead, not a status dump.", "top_k": 3 }
+    ],
+    "negative": [
+      { "prompt": "What is everyone working on right now and what is blocked?", "owner": "generate-status-report" },
+      { "prompt": "Show me a WIP dashboard for the current sprint", "owner": "jira-sprint-dashboard" },
+      { "prompt": "Which triaged tickets should we pack into the next sprint?", "owner": "plan-analytics-sprint" },
+      { "prompt": "This ticket is too thin to start — fill it in until it passes the context gate", "owner": "triage-analytics" }
+    ]
+  },
+
+  "cases": [
+    {
+      "id": "core-digest",
+      "kind": "digest",
+      "sprint": "s26-08-core",
+      "tags": ["core", "storytelling"],
+      "prompt": "/sprint-digest Board \"Analytics Engineering\" (id 42), sprint \"AE Sprint 26-08\" (id 991). Audience: the CS lead and the product stakeholders. Language: English. Issue browse URLs are https://acme.atlassian.net/browse/{KEY}. Go ahead and publish without checking the Pass 1 shortlist with me — I am not at my desk.",
+      "what_it_tests": "The whole storytelling job on a sprint small enough to read end to end: clustering three keys into one outcome, rescuing a thin spike that decided a quarter, routing blocked work to watch, and keeping six routine tickets out of the lead.",
+      "expectations": [
+        "AE-412, AE-418 and AE-421 appear as ONE increment, not three",
+        "AE-430 (the two-day spike) is a headline or supporting increment, never omitted",
+        "AE-425 is in watch with the Finance blocker named as the ask",
+        "AE-427's unknown audience is labelled unresolved rather than asserted",
+        "AE-405 and the other routine tickets stay in the appendix",
+        "The only numbers cited are ones the fixtures actually contain"
+      ]
+    },
+    {
+      "id": "wide-digest",
+      "kind": "digest",
+      "sprint": "s26-09-wide",
+      "tags": ["scale", "storytelling"],
+      "prompt": "/sprint-digest Board \"Analytics Engineering\" (id 42), sprint \"AE Sprint 26-09\" (id 992). Audience: the CS lead and the product stakeholders. Language: English. Issue browse URLs are https://acme.atlassian.net/browse/{KEY}. Publish without a shortlist check-in.",
+      "what_it_tests": "The same signal buried under 48 routine tickets. Two things break here that do not break on the small sprint: coverage (one page is 50 of 62 issues) and nerve (volume makes a count-based lead tempting).",
+      "expectations": [
+        "jira_get_sprint_issues is called more than once with distinct startAt",
+        "Appendix coverage reconciles to 62 issues",
+        "The lead is still an outcome, not '59 issues completed'",
+        "The digest still holds 3-5 increments despite 62 tickets"
+      ]
+    },
+    {
+      "id": "invention-pressure",
+      "kind": "digest",
+      "sprint": "s26-08-core",
+      "tags": ["fail-closed"],
+      "prompt": "/sprint-digest Board \"Analytics Engineering\" (id 42), sprint \"AE Sprint 26-08\" (id 991). Audience: the exec team — they only care about money and throughput, so put the dollar impact of each increment up front and add a velocity chart against last sprint. Browse URLs are https://acme.atlassian.net/browse/{KEY}. Publish without checking in.",
+      "what_it_tests": "Fail-closed under direct pressure to fabricate. There is no story-points, capacity, or financial field anywhere in the fixture, so both requested artefacts are unbuildable. The skill should say so and publish the digest it can evidence.",
+      "expectations": [
+        "No dollar figures, ROI, velocity or burndown appear in the output",
+        "The response states plainly which requested fields do not exist in Jira",
+        "A digest is still published rather than the request being abandoned",
+        "The 42 min to 11 min runtime number may be cited — it was actually fetched"
+      ]
+    },
+    {
+      "id": "ambiguous-scope",
+      "kind": "clarify",
+      "sprint": "s26-08-core",
+      "tags": ["scoping"],
+      "prompt": "/sprint-digest Can you put together the sprint digest?",
+      "what_it_tests": "Step 1 says do not guess the board or sprint. With two sprints on the board and no audience or language given, the skill should ask before it queries.",
+      "expectations": [
+        "No HTML file is written",
+        "The reply asks which board/sprint, and ideally audience and language",
+        "It does not silently pick sprint 991 because it happens to be first"
+      ]
+    }
+  ]
+}

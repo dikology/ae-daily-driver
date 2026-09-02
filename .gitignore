@@ -1,2 +1,6 @@
 .env
 confidential/
+.pytest_cache/
+.venv/
+labs/evals/.venv/
+labs/evals/results/

@@ -17,7 +17,8 @@ Steal the kit. Run it in the repos where the work happens. This repo is not a wi
 ## Intended layout
 
 ```
-skills/          # canonical skill sources (showcase)
+skills/          # canonical skill sources (showcase) — stable, copy-installable
+labs/            # candidate skill + eval harness (see labs/README.md)
 mcp/             # MCP config examples (coming)
 diagrams/        # concept diagrams
 docs/adr/        # architectural decisions
@@ -47,6 +48,23 @@ See [CONTEXT.md](CONTEXT.md) for definitions, and [diagrams/scheme.excalidraw](d
 
 - [ADR-0001 — Library is workflow kit only](docs/adr/0001-library-is-workflow-kit-only.md)
 - [ADR-0002 — Showcase layout: `skills/` and `mcp/` at root](docs/adr/0002-showcase-layout-skills-and-mcp-at-root.md)
+- [ADR-0003 — Stable skills, `labs/` candidates, promotion gated on evals](docs/adr/0003-stable-skills-and-labs-candidates.md)
+
+## Iterating on a skill
+
+`skills/` is stable: it is what other repos copy, so it should not churn under them.
+Iteration happens in `labs/`, where a candidate copy of one skill is scored against
+the stable one on identical synthetic fixtures.
+
+```bash
+python3 labs/evals/run_evals.py               # both arms, report the delta
+python3 labs/evals/run_evals.py --promote     # candidate -> skills/, once it wins
+```
+
+`sprint-digest` is the first skill under this treatment. Its output is prose, and
+prose degrades in ways a diff cannot show — a sharper headline and a fabricated
+impact number can arrive in the same edit. See [labs/README.md](labs/README.md) and
+[ADR-0003](docs/adr/0003-stable-skills-and-labs-candidates.md).
 
 ## Working on this repo
 
