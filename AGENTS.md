@@ -20,6 +20,16 @@ Shared fail-closed ticket bar. `/triage-analytics` fills until pass; `/do-jira-t
 
 Single-context layout (`CONTEXT.md` + `docs/adr/`). See `docs/agents/domain.md`.
 
+### Skill iteration
+
+`skills/` is the stable surface; `labs/` holds the candidate under development plus
+its eval harness. Do not edit `skills/sprint-digest/` directly — edit
+`labs/sprint-digest/`, run `labs/evals/run_evals.py`, and promote when it wins. See
+[labs/README.md](labs/README.md) and `docs/adr/0003-*`.
+
+Grader unit tests are free and must pass before any eval run:
+`./labs/evals/.venv/bin/python -m pytest labs/evals/test_graders.py -q`
+
 ### Sprint digest
 
 Narrative briefing of story-worthy increments from a Jira sprint (HTML + chat summary). Canonical: `skills/sprint-digest/`; runtime copy under `.cursor/skills/sprint-digest/`. Distinct from status reports, WIP dashboards, sprint packing, and context-gate triage — see the skill boundary table.
