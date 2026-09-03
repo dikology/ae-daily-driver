@@ -4,3 +4,8 @@ confidential/
 .venv/
 labs/evals/.venv/
 labs/evals/results/
+
+# Eval fixtures are built from real client sprint data — never commit them.
+# Regenerate locally with: python3 confidential/build_hospa_fixture.py
+labs/evals/fixtures/sprints/
+labs/evals/fixtures/keys/

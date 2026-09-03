@@ -22,7 +22,11 @@ import re
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 
-KEY_RE = re.compile(r"\bAE-\d+\b")
+# Any Jira-style key: an uppercase project prefix + number (AE-412, HOSPA-1744).
+# Kept generic so the graders are not tied to one fixture's project. A stray
+# token like "UTF-8" can match, but it only ever becomes a phantom key that no
+# answer-key cluster references, so it is inert.
+KEY_RE = re.compile(r"\b[A-Z][A-Z0-9]+-\d+\b")
 # "lead" is what real digests tend to call the headline section; both map to the
 # same bucket, so which one matches first does not matter.
 SECTION_WORDS = ("headline", "lead", "increment", "watch", "appendix", "omission",
@@ -144,7 +148,12 @@ def bucket_of(blocks: list[Block], key: str) -> str:
 NEGATION_CUES = re.compile(
     r"\b(not|no|never|without|absent|unavailable|missing|lack\w*|cannot|can't|"
     r"isn't|aren't|weren't|wasn't|don't|doesn't|didn't|unsupported|unverified|"
-    r"n/a|omitted|excluded|declined|unable)\b")
+    r"n/a|omitted|excluded|declined|unable|"
+    # Russian: the fail-closed disclaimer is written in the digest's language.
+    r"не|нет|без|отсутству\w*|нельзя|не\s*приведен\w*|не\s*приводим|не\s*claim\w*|"
+    r"не\s*заявля\w*|не\s*фигуриру\w*|не\s*построит\w*|не\s*посчита\w*|недоступн\w*|"
+    r"невозможн\w*|не\s*существу\w*|не\s*извлека\w*|не\s*получен\w*|не\s*найден\w*|"
+    r"н/д|опущен\w*|исключен\w*)\b")
 
 
 SENTENCE_BREAK = re.compile(r"[.!?;\n]")
@@ -283,7 +292,7 @@ def g_claim_labels(html: str, key: dict) -> Result:
 
 def g_evidence_links(html: str, key: dict) -> Result:
     """Keys cited as claims should be clickable back to the evidence."""
-    linked = set(re.findall(r"href=\"[^\"]*?/browse/(AE-\d+)", html))
+    linked = set(re.findall(r"href=\"[^\"]*?/browse/([A-Z][A-Z0-9]+-\d+)", html))
     cited = set()
     for c in key["clusters"]:
         if c["expect_bucket"] in ("headline", "supporting", "watch"):
@@ -303,11 +312,16 @@ def g_conclusion_titles(html: str, _key: dict) -> Result:
         return Result("conclusion_titles", 0.0, 1.5, note="no h1/h2 found")
     label_re = re.compile(
         r"^(sprint\s+digest|digest|increments?|summary|overview|watch|appendix|"
-        r"chart\s*\d*|sprint\s+\S+|results?|highlights?)\W*$", re.I)
+        r"chart\s*\d*|sprint\s+\S+|results?|highlights?|"
+        r"(?:дайджест|обзор|итоги|сводка|отчёт|отчет)(?:\s+(?:по\s+)?спринт\w*)?|"
+        r"спринт[\s-]+\S+|инкремент\w*|результат\w*|основное|наблюдени\w*|"
+        r"приложени\w*|контекст|на\s+контроле|риски)\W*$", re.I)
     bad = [h for h in heads if label_re.match(h)]
     # Section wrappers are allowed to be labels; increment/page titles are not.
     scoreable = [h for h in heads if h.lower().strip(" :") not in
-                 ("watch", "appendix", "increments", "increment", "context")]
+                 ("watch", "appendix", "increments", "increment", "context",
+                  "наблюдения", "на контроле", "риски", "приложение", "контекст",
+                  "инкременты", "итоги")]
     bad = [h for h in bad if h in scoreable]
     if not scoreable:
         return Result("conclusion_titles", 0.0, 1.5, note="no titles carrying a claim")
@@ -326,11 +340,14 @@ def g_lead_is_not_a_dump(html: str, _key: dict) -> Result:
     lead = " ".join(lead.split())[:1200]
     # Every branch requires a work noun. "closed 2026-08-24" is a sprint end date,
     # not a throughput brag, and matching it was sending the score the wrong way.
-    work = r"(?:issues?|tickets?|stories|items?|story|points?)"
+    work = (r"(?:issues?|tickets?|stories|items?|story|points?|"
+            r"задач\w*|тикет\w*|историй|сторис|пунктов)")
+    done = (r"(?:completed|closed|delivered|resolved|shipped|"
+            r"закрыт\w*|выполнен\w*|завершен\w*|сделан\w*|поставлен\w*)")
     dumpy = re.findall(
         r"\b\d+\s+%s\b|"
-        r"\b(?:completed|closed|delivered|resolved|shipped)\s+\d+\s+%s\b|"
-        r"\b\d+\s*(?:of|/|out of)\s*\d+\s+%s\b" % (work, work, work),
+        r"\b%s\s+\d+\s+%s\b|"
+        r"\b\d+\s*(?:of|/|out of|из)\s*\d+\s+%s\b" % (work, done, work, work),
         lead, flags=re.I)
     if dumpy:
         return Result("lead_is_not_a_dump", 0.0, 1.5,

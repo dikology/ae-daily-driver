@@ -50,17 +50,20 @@ ALLOWED_TOOLS = ["Read", "Write", "Edit", "Glob", "Grep", "TodoWrite",
                  "mcp__jira__jira_get_sprint_issues",
                  "mcp__jira__jira_get_issue"]
 
-CONSUMING_CONTEXT = """# Acme Analytics (consuming repo)
+CONSUMING_CONTEXT = """# HOSPA Analytics (consuming repo)
 
-Stakeholder language is plain English; no internal jargon in briefings.
+Язык брифингов для стейкхолдеров — русский. Ключи задач и названия статусов Jira
+оставляем как есть; всё остальное — по-русски, без внутреннего жаргона.
 
-| Term | Meaning |
+| Термин | Значение |
 | --- | --- |
-| cohort retention | share of a signup cohort still subscribed at month N |
-| rev-rec | revenue recognition |
-| nightly | the 02:00 warehouse build |
+| УД | умный дом |
+| ВА | виртуальный ассистент |
+| витрина | конечная аналитическая таблица (dm / gold), которую читают дашборды |
+| sandbox / sandbox_homeos | схемы песочницы аналитики; идёт миграция первой во вторую |
+| Банк | Сбербанк как внешний потребитель регулярных поставок данных |
 
-Analyses are published to `analyses/`. Jira is read-only from this repo.
+Аналитика публикуется в `analyses/`. Jira из этого репозитория — только на чтение.
 """
 
 
