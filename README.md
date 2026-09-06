@@ -49,6 +49,7 @@ See [CONTEXT.md](CONTEXT.md) for definitions, and [diagrams/scheme.excalidraw](d
 - [ADR-0001 — Library is workflow kit only](docs/adr/0001-library-is-workflow-kit-only.md)
 - [ADR-0002 — Showcase layout: `skills/` and `mcp/` at root](docs/adr/0002-showcase-layout-skills-and-mcp-at-root.md)
 - [ADR-0003 — Stable skills, `labs/` candidates, promotion gated on evals](docs/adr/0003-stable-skills-and-labs-candidates.md)
+- [ADR-0004 — Portability contract: declare outside dependencies, don't link them](docs/adr/0004-portability-contract.md)
 
 ## Iterating on a skill
 

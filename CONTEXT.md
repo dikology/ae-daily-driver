@@ -97,5 +97,5 @@ Three rungs of ascending cost for measuring a skill's behaviour. Rung 1 — the 
 _Avoid_: the evals (unqualified — name the rung), test pyramid, CI matrix
 
 **Portability contract**:
-A skill may depend on things outside its own directory but must *declare* what it expects from the consuming repo rather than point a relative path at it. The validator then checks that the declaration exists instead of resolving a path that is correct in only one of the two places a skill lives. To be recorded in ADR-0004.
+A skill may depend on things outside its own directory but must *declare* what it expects from the consuming repo rather than point a relative path at it. The validator then checks that the declaration exists instead of resolving a path that is correct in only one of the two places a skill lives. Recorded in [ADR-0004](docs/adr/0004-portability-contract.md); the declaration mechanism is a `Requires from the consuming repo` section.
 _Avoid_: full self-containment (breaks the single-sourced context gate and the boundary tables), "just fix the paths", vendoring
