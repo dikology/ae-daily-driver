@@ -18,26 +18,27 @@ only the sessions that work on the Library.
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `docs/agents/library-increments.md` exists and states the evidence bar, naming the three
+- [x] `docs/agents/library-increments.md` exists and states the evidence bar, naming the three
       admissible kinds of evidence and stating explicitly that another repo's skill is not evidence
-- [ ] The same document states the eval ladder as three rungs with what each costs and which skills
+- [x] The same document states the eval ladder as three rungs with what each costs and which skills
       it applies to, plus the tier rule: if a change can alter the model's output on identical
       input, it needs an eval; otherwise it is structural
-- [ ] The same document states the increment definition of done: evidence cited, change made,
+- [x] The same document states the increment definition of done: evidence cited, change made,
       validator green over the canonical surface, rung-2 cases for touched skills pass, and
       `/telegram-git-diff` invoked with either a draft or an omit verdict as the result
-- [ ] `AGENTS.md` gains a one-line pointer under its own heading, in the style of the existing
+- [x] `AGENTS.md` gains a one-line pointer under its own heading, in the style of the existing
       pointers; no process rule is inlined there
-- [ ] `CONTEXT.md` defines **library increment**, **canonical surface**, **sandbox**, **eval
+- [x] `CONTEXT.md` defines **library increment**, **canonical surface**, **sandbox**, **eval
       ladder**, and **portability contract**, each with an `_Avoid_` line, following the existing
       entry format
-- [ ] The **library increment** entry's `_Avoid_` line reserves bare "increment" for
+- [x] The **library increment** entry's `_Avoid_` line reserves bare "increment" for
       `sprint-digest`'s client-facing meaning, so the collision is recorded rather than resolved by
       accident
-- [ ] The **sandbox** entry scopes itself to `.cursor/skills/` *in this repo* and states that it is
+- [x] The **sandbox** entry scopes itself to `.cursor/skills/` *in this repo* and states that it is
       dogfood and experiments, out of scope, and excluded from the standard
-- [ ] The existing **Install** entry is sharpened to name the copy direction and destination: from
+- [x] The existing **Install** entry is sharpened to name the copy direction and destination: from
       `skills/` into the consuming repo's agent folder
-- [ ] The validator's always-tier token budget has not materially grown as a result of this ticket
+- [x] The validator's always-tier token budget has not materially grown as a result of this ticket
+      (1344 → 1381 always-tier tokens, +2.7%, from the AGENTS.md pointer)

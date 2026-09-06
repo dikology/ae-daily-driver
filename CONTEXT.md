@@ -65,8 +65,8 @@ The set of entities an AE session contacted. Built from Jira issue signals (fiel
 _Avoid_: full lineage graph, inventory dump
 
 **Install**:
-Copying Library skills/rules into a consuming repo (per-repo install). The showcase story is steal-by-copy; there is no shared runtime package assumed. First dogfood target: a consuming analytics repo.
-_Avoid_: symlink-from-library, global-only distribution
+Copying a Library skill from root `skills/` into the consuming repo's agent folder (e.g. `.claude/skills/` or `.cursor/skills/`) — per-repo, one direction, source to destination. The showcase story is steal-by-copy; there is no shared runtime package assumed. First dogfood target: a consuming analytics repo.
+_Avoid_: symlink-from-library, global-only distribution, install-into-Library (the copy never lands back here)
 
 **do-jira-task**:
 An existing skill (lives elsewhere today; to be brought into the Library later) for working a Jira task end-to-end. Not the same as unwrap; relationship to unwrap still being sharpened.
@@ -79,3 +79,23 @@ _Avoid_: catalog sync, full governance migration, Jira writeback
 **Showcase layout**:
 Canonical Library content lives at repo-root `skills/` and `mcp/` for presentability; copied into `.cursor/` (and peers) as needed for agent use. Not a second source of entity truth.
 _Avoid_: .cursor-only as the showcase surface, submodule runtime
+
+**Library increment**:
+One unit of improvement work on a Library skill: one issue file, one commit, one Telegram draft (or a recorded omit verdict), justified by one cited defect. Its definition of done lives in `docs/agents/library-increments.md`. The collision with `sprint-digest`'s "increment" is recorded here, not resolved — qualify as "library increment" in this repo's process talk.
+_Avoid_: "increment" alone (that is `sprint-digest`'s client-facing term for a story-worthy clustered outcome), rewrite, refactor pass, "improvement" (unmeasured)
+
+**Canonical surface**:
+The skills the Library owns and distributes: root `skills/` plus `.claude/skills/telegram-git-diff`. This is the tree the validator (`skills/reviewing-agent-context/scripts/audit_context.py`) is scoped to and the tree an increment must leave green.
+_Avoid_: all skills (the sandbox is excluded), canonical source (a sibling home owns that), surface area
+
+**Sandbox**:
+`.cursor/skills/` *in this repo* — dogfood and experiments not yet promoted into the Library (`close-analytics-task`, `plan-analytics-sprint`). Out of scope: not audited, not promoted, not deleted, excluded from the standard and the validator's scope. The exclusion is declared, not silent.
+_Avoid_: sandbox for `.cursor/` in a consuming repo (there it is a real agent folder), test fixtures, scratch
+
+**Eval ladder**:
+Three rungs of ascending cost for measuring a skill's behaviour. Rung 1 — the `audit_context.py` validator (deterministic, free). Rung 2 — `skills/<name>/evals/cases.json` (execution expectations, plus trigger cases for auto-triggerable skills). Rung 3 — `labs/` A/B against answer keys (expensive, prose output only). The tier rule and per-rung detail live in `docs/agents/library-increments.md`.
+_Avoid_: the evals (unqualified — name the rung), test pyramid, CI matrix
+
+**Portability contract**:
+A skill may depend on things outside its own directory but must *declare* what it expects from the consuming repo rather than point a relative path at it. The validator then checks that the declaration exists instead of resolving a path that is correct in only one of the two places a skill lives. To be recorded in ADR-0004.
+_Avoid_: full self-containment (breaks the single-sourced context gate and the boundary tables), "just fix the paths", vendoring

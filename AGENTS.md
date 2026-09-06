@@ -30,6 +30,10 @@ its eval harness. Do not edit `skills/sprint-digest/` directly — edit
 Grader unit tests are free and must pass before any eval run:
 `./labs/evals/.venv/bin/python -m pytest labs/evals/test_graders.py -q`
 
+### Library increments
+
+Evidence bar, eval ladder, and definition of done for improving a Library skill. See `docs/agents/library-increments.md`.
+
 ### Sprint digest
 
 Narrative briefing of story-worthy increments from a Jira sprint (HTML + chat summary). Canonical: `skills/sprint-digest/`; runtime copy under `.cursor/skills/sprint-digest/`. Distinct from status reports, WIP dashboards, sprint packing, and context-gate triage — see the skill boundary table.
