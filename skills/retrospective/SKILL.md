@@ -9,6 +9,16 @@ Interactive post-session retro. Scans Cursor agent transcripts, asks focused que
 
 This is a **session** retro (skills, corrections, rules).
 
+## Requires from the consuming repo
+
+Outside dependencies, declared here rather than linked (ADR-0004).
+
+- **Agent transcripts** — the tool that ran the session writes them under a per-project transcripts tree (Cursor: `~/.cursor/projects/{slug}/agent-transcripts/{uuid}/{uuid}.jsonl`). Absent: multi-session discovery finds nothing; fall back to single-session mode over the current conversation.
+- **A memory directory** — per project, holding `MEMORY.md` plus `feedback_*.md` / `project_*.md` (Cursor: `.cursor/memory`). Created on the first memory write if absent.
+- **Skill directories** — project-local then user-level (`{project}/.cursor/skills/{name}`, then `~/.cursor/skills/{name}`, then `~/.agents/skills/{name}`). A skill update candidate whose file cannot be found is reported and skipped, not written blind.
+- **`AGENTS.md`** at the project root — target for rule candidates. Absent: offer the rule as a memory instead.
+- **A Linear MCP server** (optional). Absent: omit Linear task candidates entirely.
+
 ## Modes
 
 ### Single-session mode (default when inside a substantial conversation)
@@ -39,7 +49,7 @@ python3 scan_transcripts.py --date 2026-05-24
 python3 scan_transcripts.py --min-user-messages 3
 ```
 
-The scanner reads `~/.cursor/projects/*/agent-transcripts/{uuid}/{uuid}.jsonl`, skips `subagents/`, and prints project, short id, query previews, tools, and skills touched.
+The scanner reads `~/.cursor/projects/*/agent-transcripts/{uuid}/{uuid}.jsonl`, skips subagent sub-directories, and prints project, short id, query previews, tools, and skills touched.
 
 Cite a past chat as `[short title](uuid)` using the folder uuid (no `.jsonl`).
 
@@ -123,7 +133,7 @@ Write into the **originating project** for that candidate (decoded path from the
 | AGENTS.md rule | `{project}/AGENTS.md` | StrReplace |
 | Linear task | Linear MCP create-issue tool (schema from GetMcpTools) | CallMcpTool |
 
-Create `.cursor/memory/` and a short `MEMORY.md` index on first memory write. Append one index line per new memory file.
+Create the `.cursor/memory` directory and a short `MEMORY.md` index on first memory write. Append one index line per new memory file.
 
 ### Step 3 — Summary (brief)
 
@@ -147,7 +157,7 @@ Each JSONL line is a JSON object. Relevant shapes:
 - `role: assistant` — model response. Text and `tool_use` blocks in `message.content[]`.
 - `type: turn_ended` — skip.
 
-Subagent transcripts live under `{uuid}/subagents/` — ignore them in discovery.
+Subagent transcripts live in a `subagents` sub-directory of the parent — ignore them in discovery.
 
 ## Candidate Description Format
 

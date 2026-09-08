@@ -6,12 +6,10 @@ Default deliverables: **single-file HTML** + **3–5 bullet chat summary**.
 
 ```
 analyses/YYYY-MM-DD_<sprint-slug>-digest.html
+example: analyses/2026-08-20_sprint-26-08-21-digest.html
 ```
 
-Examples:
-
-- `analyses/2026-08-20_sprint-26-08-21-digest.html`
-- Sprint slug: lowercase, hyphens; prefer sprint name from Jira.
+Sprint slug: lowercase, hyphens; prefer sprint name from Jira.
 
 Optional markdown twin (only if asked): `sprint_<id>/DIGEST.md`.
 

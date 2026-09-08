@@ -13,9 +13,31 @@ Run a ticket end-to-end **only with enough context**. Prefer bouncing to
 `/triage-analytics` over guessing event maps, metrics, sources, or DoD.
 
 The fill loop (context gate + grill) lives in triage. This skill **re-scores** the same
-[context gate](../../../docs/agents/context-gate.md) and refuses to Execute on a fail.
+context gate (declared under *Requires from the consuming repo*) and refuses to Execute
+on a fail.
 
-Inspiration: this workspace’s cross-repo map (`CONTEXT.md`, `.cursor/WORKSPACE.md`, OUTBOX.md).
+Inspiration: this workspace's cross-repo map — a repo `CONTEXT.md`, a workspace map
+(`WORKSPACE.md`, kept under `.cursor/` here), and an `OUTBOX.md`.
+
+## Requires from the consuming repo
+
+Outside dependencies, declared here rather than linked (ADR-0004).
+
+- **Context gate** — the shared checklist re-scored before Execute, stored at
+  `docs/agents/context-gate.md` in repos that carry it. Absent: emit `context-gate
+  re-score skipped: no context-gate.md at the repo root`, then bounce to
+  `/triage-analytics` instead of Executing an unscored ticket.
+- **`triage-analytics` skill** — the fill-and-grill loop this skill bounces to. Expected
+  installed alongside this skill. Absent: say so, Plan only from Known facts, and stop
+  at any BLOCKER instead of bouncing.
+- **Workspace map** — a `WORKSPACE.md` (or equivalent) at the workspace root naming
+  sibling-home paths (dbt projects, catalog, scratch); this repo keeps it under
+  `.cursor/`. Absent: ask the user for sibling-home locations; do not guess them.
+- **Repo `CONTEXT.md` and `OUTBOX.md`** at the consuming repo root. Absent: proceed
+  without the cross-repo map and flag lasting cross-repo work in chat instead of an
+  OUTBOX entry.
+- **Ticket working directory** — a `{issue-key}/` folder for scratch, SQL, `PLAN.md`,
+  `RETRO.md`. Created in the consuming repo if absent.
 
 ## When invoked
 
@@ -40,14 +62,14 @@ Gather facts. Do not invent.
 1. **Jira** — `jira_get_issue` (summary, description, status, components, links, attachments). Read comments. Note stakeholders and open questions.
 2. **Local folder** — ticket working dir if present (`{issue-key}/` or similar: SQL, notes, prior PLAN).
 3. **Repo context** — this repo’s `CONTEXT.md`, `OUTBOX.md`.
-4. **Workspace** — `.cursor/WORKSPACE.md` (or equivalent) for sibling-home paths (dbt projects, catalog, ad-hoc scratch).
+4. **Workspace** — the workspace map (see *Requires from the consuming repo*) for sibling-home paths (dbt projects, catalog, ad-hoc scratch).
 5. **Light scan** — only what the ticket already points to (Metabase URL → Metabase MCP; table name → catalog / warehouse). Do not deep-explore the whole warehouse “just in case”.
 
 Output a short **Known facts** bullet list (cited: Jira field / comment / file / URL).
 
 ## Phase 2 — Context gate (re-score)
 
-Read [context-gate.md](../../../docs/agents/context-gate.md). Score **pass / thin / blocked**.
+Read the context gate (`docs/agents/context-gate.md` — see *Requires from the consuming repo*). Score **pass / thin / blocked**.
 
 - Any **BLOCKER** → gate fails. Go to Bounce. **Do not Execute.** Do not open a discovery grill.
 - **thin** → Plan with explicit gaps; Execute only steps that do not depend on gaps, and only after user OK. If the gaps are requester-owned, Bounce those instead of planning around them.
@@ -97,7 +119,7 @@ Only after explicit OK.
 Before ending the session (even if blocked):
 
 1. What should triage or the gate have caught earlier?
-2. Propose 1–3 concrete edits to this skill, [context-gate.md](../../../docs/agents/context-gate.md), or [task-quality.md](task-quality.md).
+2. Propose 1–3 concrete edits to this skill, the context gate (`docs/agents/context-gate.md`), or [task-quality.md](task-quality.md).
 3. Apply skill edits only if the user asks; otherwise leave proposals in the reply (and optionally under `{issue-key}/RETRO.md`).
 
 ## Culture loop

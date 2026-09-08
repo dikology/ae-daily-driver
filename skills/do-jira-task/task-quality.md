@@ -1,12 +1,12 @@
 # Task quality (Jira culture)
 
-Living checklist for how issue-tracker tickets should look so `/triage-analytics` can pass the [context gate](../../../docs/agents/context-gate.md) without guessing, and `/do-jira-task` can re-score without bouncing. Grow this file from sprint retros — one bullet per repeated gap.
+Living checklist for how issue-tracker tickets should look so `/triage-analytics` can pass the context gate without guessing, and `/do-jira-task` can re-score without bouncing. The gate is `docs/agents/context-gate.md`, declared in `SKILL.md` under *Requires from the consuming repo*. Grow this file from sprint retros — one bullet per repeated gap.
 
 ## Minimum ticket shape
 
 1. **Summary** — outcome, not activity (“Checkout funnel on the revenue dashboard”, not “look at events”).
 2. **Description** — goal, scope, DoD, links. Comments are history; durable decisions move into description.
-3. **Components** — primary tracker component (drives the [context-gate](../../../docs/agents/context-gate.md) section).
+3. **Components** — primary tracker component (drives the context-gate section).
 4. **Links** — Metabase / Confluence / Figma / related tickets / sibling repo paths. If none apply, write `n/a` in description.
 5. **Needs-info** — name who/what is missing and the next meeting/thread; do not leave an empty waiting-on-requester status.
 

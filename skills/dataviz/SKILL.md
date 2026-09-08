@@ -9,6 +9,14 @@ A single format for two modes: **Review** (audit existing chart/dashboard code) 
 
 Default to flagging in Review mode; approval is earned, not assumed. Default to progressive disclosure in Discovery mode; never dump more than one new insight per turn.
 
+## Requires from the consuming repo
+
+Outside dependencies, declared here rather than linked (ADR-0004).
+
+- **An analyses output directory** in the consuming repo — saved reports (format 3) land in `analyses`, validation SQL (format 5) in `analyses/validation`. Created if absent.
+- **`PRODUCT.md` / `DESIGN.md`** (consuming repo root, optional). Absent: fall back to the plain single-file HTML defaults from Section E.
+- **A Cursor `canvas` skill** — used for format 4 when the session runs under Cursor. Absent, or running elsewhere: use the single-file HTML equivalent, as Section E already specifies.
+
 ---
 
 ## Section A — Visualization Grammar Rules
@@ -310,9 +318,9 @@ Visualization is expensive (tokens, time, external APIs). **Do not render charts
 |---|---|---|---|
 | 1 | Default question (no explicit viz request) | Chat | No — text + table only |
 | 2 | "report" / "chart" / "graph" / "visualize" / "build an analytics card" | Chat | Yes — one card at a time (Discovery) or findings table (Review) |
-| 3 | "save report" / "export report" / "put in analyses" | File in `analyses/` | Yes — same content as #2, persisted |
+| 3 | "save report" / "export report" / "put in analyses" | File in `analyses` | Yes — same content as #2, persisted |
 | 4 | "canvas" / "interactive report" / "open beside chat" / "dashboard in canvas" | Canvas or equivalent | Yes — interactive card stack |
-| 5 | "save SQL" / "for validation" / "export queries" | `analyses/validation/` | No — code + question only |
+| 5 | "save SQL" / "for validation" / "export queries" | `analyses/validation` | No — code + question only |
 
 Format 5 can combine with 1–4. Do not commit saved reports unless the user explicitly asks.
 
@@ -320,9 +328,9 @@ Format 5 can combine with 1–4. Do not commit saved reports unless the user exp
 
 If the user does not specify a file format, ask once (default = markdown):
 
-1. **markdown** — `.md` in `analyses/` + images alongside (or embedded links)
-2. **html** — one self-contained `.html` in `analyses/` (see below)
-3. **pdf** — `.pdf` in `analyses/`
+1. **markdown** — `.md` in `analyses` + images alongside (or embedded links)
+2. **html** — one self-contained `.html` in `analyses` (see below)
+3. **pdf** — `.pdf` in `analyses`
 
 Naming: `analyses/YYYY-MM-DD_<slug>.{md|html|pdf}`. After saving, tell the user the path in chat.
 
@@ -359,4 +367,4 @@ In canvas/HTML interactive output, follow the same card order and Section A/B ru
 - HTML report with external assets folder or broken relative links (must open as one file)
 - "Canvas" in a non-Cursor environment without the HTML equivalent
 - "Save report" without writing a file or stating the path
-- Format 5 without `question.md` or without `analyses/validation/` folder structure
+- Format 5 without `question.md` or without the `analyses/validation` folder structure

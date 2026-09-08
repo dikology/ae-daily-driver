@@ -16,6 +16,20 @@ A wrapper. It contributes no context theory of its own. It composes two existing
 
 If a finding is not traceable to one of those two, it does not belong in the report.
 
+## Requires from the consuming repo
+
+Outside dependencies, declared here rather than linked (ADR-0004).
+
+- **`context-engineering` skill** — the operating model half of the audit. Expected
+  wherever skills install in the consuming repo; Step 1's
+  `--locate-context-engineering` call finds it. Absent: note "context-engineering
+  skill not installed — rubric-only audit" in the report header and run the
+  deterministic and rubric halves without it. Do not reconstruct the operating model
+  from memory.
+
+`references/rubric.md` and `references/report-template.md` ship inside this skill, so
+they are not consuming-repo dependencies.
+
 ## Workflow
 
 Copy this checklist and check items off as you go:

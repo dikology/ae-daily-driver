@@ -1,7 +1,8 @@
 # Increment rubric (story-worthiness)
 
-Score each **clustered increment**, not each raw Jira ticket. Distinct from
-`docs/agents/context-gate.md` (implementation readiness).
+Score each **clustered increment**, not each raw Jira ticket. Distinct from the
+context gate (implementation readiness), which `SKILL.md` declares under
+*Requires from the consuming repo*.
 
 ## Required fields
 

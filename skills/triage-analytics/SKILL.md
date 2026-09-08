@@ -12,13 +12,35 @@ verify step, and out-of-scope logging are unchanged because they're already
 domain-agnostic. Three things are different from the original: the category roles
 are issue-tracker components (not GitHub labels); there's an explicit repo-resolution
 step since your work spans repos rather than living in one; and `ready-for-agent`
-means a **pass** on the shared [context gate](../../../docs/agents/context-gate.md),
-not a thin brief. `/do-jira-task` re-scores that same gate and bounces here on fail
-— it does not grill.
+means a **pass** on the shared context gate (declared under *Requires from the
+consuming repo*), not a thin brief. `/do-jira-task` re-scores that same gate and
+bounces here on fail — it does not grill.
 
 If you already turned something
 into a spec via `to-spec` or a ticket via `to-tickets`, it's already agent-ready;
 running this over it again is wasted work.
+
+## Requires from the consuming repo
+
+Outside dependencies, declared here rather than linked (ADR-0004).
+
+- **Context gate** — `docs/agents/context-gate.md`, sitting with the rest of a
+  repo's installed Library docs. Every ticket is scored against it and grilled until
+  pass. Absent: say the gate could not be applied, score against goal / scope / DoD /
+  links as a fallback bar, and route anything borderline to `ready-for-human`.
+- **Triage-label mapping** — `docs/agents/triage-labels.md`, alongside the gate. Maps
+  the five state roles onto the tracker's statuses and comments. Absent: keep the
+  canonical role names and ask the user how they map to this tracker.
+- **Owning repos** — the sibling codebases each ticket is routed to, checked out
+  locally, with their domain glossary and ADRs. Absent for a repo: say the redundancy
+  and prior-rejection checks could not run against it and mark the recommendation
+  provisional.
+- **Per-repo out-of-scope log** — a directory of rejected-request notes in each
+  consuming repo. Read on triage, appended on a `wontfix` rejection. Created if
+  absent.
+- **`to-spec` / `to-tickets` / `to-issues` skills** — downstream handoff, expected
+  installed alongside this skill. Absent: write the agent brief in the same shape and
+  note the downstream skill was not available.
 
 Every comment or issue posted to the issue tracker during triage **must** start with
 this disclaimer:
@@ -108,8 +130,8 @@ tell from the title/body. Let the user pick.
    Explore that repo's codebase using its domain glossary, respecting its ADRs. Run two
    checks: (a) **redundancy** — does this metric/model/dashboard already exist? Search
    by domain concept, not just the request's wording; report where you looked. If found,
-   it's an already-implemented `wontfix` (step 5). (b) **prior rejection** — read
-   `.out-of-scope/*.md` for that repo and surface anything that resembles this request.
+   it's an already-implemented `wontfix` (step 5). (b) **prior rejection** — read that
+   repo's out-of-scope log and surface anything that resembles this request.
 
 2. **Recommend.** State your primary category (tracker component name, or issue type
    Bug), repo, and state recommendation with reasoning, plus a brief summary of what you
@@ -126,9 +148,9 @@ tell from the title/body. Let the user pick.
    insufficient detail (a strong `needs-info` signal). A confirmed verification makes a
    much stronger agent brief.
 
-4. **Context gate, then grill until pass.** Score the ticket against
-   [context-gate.md](../../../docs/agents/context-gate.md) for its component(s). Show the
-   result (`pass` / `thin` / `blocked`) and any `BLOCKER:` rows.
+4. **Context gate, then grill until pass.** Score the ticket against the context
+   gate (declared above; `docs/agents/context-gate.md`) for its component(s). Show
+   the result (`pass` / `thin` / `blocked`) and any `BLOCKER:` rows.
 
    - **pass** → `ready-for-agent`. Durable answers belong on the ticket (description /
      agent brief), not only in chat.
@@ -149,12 +171,12 @@ tell from the title/body. Let the user pick.
      stakeholder sign-off, manual validation, or thin-gate gaps).
    - `needs-info` — post triage notes (template below).
    - `wontfix` — close, with the comment depending on why:
-     - **Already implemented** — point to where it lives; do not write to
-       `.out-of-scope/`.
+     - **Already implemented** — point to where it lives; do not write to the
+       out-of-scope log.
      - **Rejected (`Bug`, `DataOps`)** — polite explanation, then close (the
        tracker’s cancelled / rejected status if that transition exists).
      - **Rejected (`BI`, `ETL`, `Ad-hoc`, `Discovery`, `A/B`, `Report`)** — write to
-       `.out-of-scope/`, link from the closing comment, then close, so the same
+       the out-of-scope log, link from the closing comment, then close, so the same
        dashboard/pipeline ask doesn't get re-litigated next sprint.
    - `needs-triage` — apply the role; optional comment if there's partial progress.
 

@@ -21,16 +21,35 @@ not a WIP board, not a packing plan.
 | `triage-analytics` | Filling a weak ticket until context-gate pass |
 | `dataviz` | Everyday product-analytics exploration / insight cards |
 
-**Story-worthiness ≠ context gate.** Implementation readiness
-([context-gate.md](../../../docs/agents/context-gate.md)) is orthogonal. A Done
-ticket with no audience consequence is omit; a thin ticket that unlocked a
-stakeholder decision can be a headline.
-
-Needs from the consuming repo (ask if missing): Jira **project / board / sprint**,
-and how to form issue browse URLs (the issue’s web URL from Jira MCP, or the
-issue-tracker base URL + `/browse/{KEY}`). Read any local Jira/MCP notes if present.
+**Story-worthiness ≠ context gate.** Implementation readiness (the context gate,
+declared under *Requires from the consuming repo*) is orthogonal. A Done ticket with
+no audience consequence is omit; a thin ticket that unlocked a stakeholder decision
+can be a headline.
 
 Jira is **read-only** unless the user separately confirms a write.
+
+## Requires from the consuming repo
+
+Outside dependencies, declared here rather than linked (ADR-0004).
+
+- **Jira project / board / sprint, and issue-URL formation.** Which board or sprint
+  to digest, and how to build issue browse links — the issue's web URL from Jira
+  MCP, or the tracker base URL + `/browse/{KEY}`. Read any local Jira/MCP notes if
+  present. Absent: ask; do not guess a board or a URL shape.
+- **Context gate** — the file `docs/agents/context-gate.md`, wherever a consuming
+  repo keeps its installed copy. Consulted only to keep story-worthiness separate
+  from implementation readiness. Absent: note "no context-gate reference" and carry
+  on, since a digest never depends on the gate and an unfound gate is not a failed one.
+- **Sibling skills from the boundary table** (`generate-status-report`,
+  `jira-sprint-dashboard`, `plan-analytics-sprint`), expected installed in the
+  consuming repo. Used only to route work that is not a digest. Absent: name the
+  skill that would have handled it and continue with the digest the user asked for.
+- **An analyses output directory** in the consuming repo, created if absent — where
+  the HTML digest is written.
+- **`PRODUCT.md` / `DESIGN.md`** at the consuming repo root (optional visual
+  system). Absent: use the plain single-column HTML defaults.
+- **impeccable skill** — optional visual pass in step 7, expected installed in the
+  consuming repo. Absent: skip step 7 and say so.
 
 ## Workflow
 
@@ -135,7 +154,7 @@ Prohibit:
 **Default:**
 
 1. Single-file HTML at `analyses/YYYY-MM-DD_<sprint-slug>-digest.html` in the
-   consuming repo (create `analyses/` if needed).
+   consuming repo (create the analyses directory if needed).
 2. Chat: 3–5 bullets — headline + top increments + one ask if any.
 
 **HTML rules (consuming repos with PRODUCT/DESIGN):**
