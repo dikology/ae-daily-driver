@@ -58,6 +58,14 @@ claims that do not resolve, and near-duplicate passages. Everything it emits is 
 Do not restate its findings as your own judgment, and do not re-derive by hand what it
 already measured.
 
+**Scope.** By default every file under `<repo-root>` is audited. Pass `--scope canonical`
+to restrict findings to `skills/` and `.claude/skills/` when the repo keeps
+deliberately-unfinished work elsewhere (this Library's `.cursor/` sandbox) that would
+otherwise bury real findings; the report then opens with a **Scope** section naming each
+excluded directory and its skipped-file count, so "checked and clean" stays distinct from
+"never looked at". Don't pass it in a repo where `.cursor/skills/` is a live agent folder
+rather than a sandbox.
+
 ### Step 3 — Inventory and load map
 
 Take both directly from validator output. Correct the load tier only where you have

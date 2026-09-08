@@ -85,7 +85,7 @@ One unit of improvement work on a Library skill: one issue file, one commit, one
 _Avoid_: "increment" alone (that is `sprint-digest`'s client-facing term for a story-worthy clustered outcome), rewrite, refactor pass, "improvement" (unmeasured)
 
 **Canonical surface**:
-The skills the Library owns and distributes: root `skills/` plus `.claude/skills/telegram-git-diff`. This is the tree the validator (`skills/reviewing-agent-context/scripts/audit_context.py`) is scoped to and the tree an increment must leave green.
+The skills the Library owns and distributes: root `skills/` plus `.claude/skills/` (whose sole current occupant is `telegram-git-diff`). This is the tree the validator (`skills/reviewing-agent-context/scripts/audit_context.py --scope canonical`) restricts its findings to and the tree an increment must leave green.
 _Avoid_: all skills (the sandbox is excluded), canonical source (a sibling home owns that), surface area
 
 **Sandbox**:

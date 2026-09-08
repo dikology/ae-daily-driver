@@ -54,8 +54,11 @@ An increment is done when all of the following hold:
 1. **Evidence cited.** The issue file names the observed failure and which of the three
    admissible kinds it is.
 2. **The change is made** — the edit that addresses that failure, and nothing else.
-3. **The validator is green over the canonical surface** — `audit_context.py` reports no errors,
-   the declared remainder above aside.
+3. **The validator is green over the canonical surface** —
+   `python3 skills/reviewing-agent-context/scripts/audit_context.py . --scope canonical` reports
+   no errors, the declared remainder above aside. `--scope canonical` is the surface an increment
+   must leave green (`CONTEXT.md` defines it); the run declares the excluded `.cursor/` sandbox
+   rather than auditing it.
 4. **Rung-2 cases pass for every touched skill.** If the increment edits a skill that has a
    rung-2 cases file (`skills/<name>/evals/cases.json`), its cases pass.
 5. **`/telegram-git-diff` has been invoked.** It has produced either a draft or an omit verdict

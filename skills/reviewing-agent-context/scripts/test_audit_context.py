@@ -24,22 +24,23 @@ def build(root, files):
             fh.write(content)
 
 
-def audit(files):
+def audit(files, scope="repo"):
     """Run every check over a temporary repo, returning (findings, items, always_tokens)."""
     with tempfile.TemporaryDirectory() as root:
         build(root, files)
-        items = ac.build_inventory(root)
+        items = ac.build_inventory(root, scope=scope)
         out = ac.Findings()
-        for entry in items:
+        scoped = [e for e in items if e["in_scope"]]
+        for entry in scoped:
             if entry["kind"] == "skill":
                 ac.check_frontmatter(entry, out)
                 ac.check_body_size(entry, out)
-        links = ac.check_links(root, items, out)
-        ac.check_reference_tocs(root, items, links, out)
-        ac.check_time_sensitive(root, items, out)
-        ac.check_path_claims(root, items, out)
-        ac.check_evals(root, items, out)
-        ac.check_duplicates(root, items, out)
+        links = ac.check_links(root, scoped, out)
+        ac.check_reference_tocs(root, scoped, links, out)
+        ac.check_time_sensitive(root, scoped, out)
+        ac.check_path_claims(root, scoped, out)
+        ac.check_evals(root, scoped, out)
+        ac.check_duplicates(root, scoped, out)
         _, always = ac.tier_totals(items)
         return out, items, always
 
@@ -214,6 +215,80 @@ def missing_evaluations_are_flagged_and_shared_cases_satisfy_the_check():
     assert "R7.1" in rules(audit({"skills/s/SKILL.md": skill()})[0])
     shared = audit({"skills/s/SKILL.md": skill(), "evals/cases/s.json": "{}"})[0]
     assert "R7.1" not in rules(shared)
+
+
+@test
+def canonical_scope_excludes_the_sandbox_but_keeps_the_canonical_surface():
+    files = {
+        "skills/real/SKILL.md": skill(name="real", body="See [x](../../../docs/x.md)\n"),
+        "skills/real/evals.json": "{}",
+        ".cursor/skills/sand/SKILL.md": skill(name="sand", desc="Does sandbox things."),
+        ".cursor/skills/sand/notes.md": "an orphan reference\n",
+    }
+    repo = audit(files, scope="repo")[0]
+    canon = audit(files, scope="canonical")[0]
+
+    # Unscoped, the sandbox skill generates findings of its own.
+    assert any(r["path"].startswith(".cursor/") for r in repo.rows), \
+        "sandbox should produce findings when the audit is not scoped"
+    # Scoped to the canonical surface, nothing under the sandbox is reported.
+    assert not any(r["path"].startswith(".cursor/") for r in canon.rows), \
+        f"sandbox must be out of scope, got {[r['path'] for r in canon.rows]}"
+    # The canonical skill's own finding is untouched by the scoping.
+    assert "R4.3" in rules(canon), "scoping removes noise, it must not weaken a check"
+
+
+@test
+def scoping_does_not_change_findings_on_the_canonical_surface():
+    files = {
+        "skills/s/SKILL.md": skill(name="s", body="Run `scripts/gone.py`\n"),
+        ".cursor/skills/junk/SKILL.md": skill(name="junk", desc="Does things."),
+    }
+    on_surface = lambda out: {
+        (r["rule"], r["path"], r["line"]) for r in out.rows if r["path"].startswith("skills/")
+    }
+    repo_rows = on_surface(audit(files, scope="repo")[0])
+    canon_rows = on_surface(audit(files, scope="canonical")[0])
+    assert repo_rows and repo_rows == canon_rows, (repo_rows, canon_rows)
+
+
+@test
+def a_passage_shared_only_with_the_sandbox_is_not_flagged_under_canonical_scope():
+    shared = "the gate is failed closed and a blocked ticket never reaches execute under any circumstance"
+    files = {
+        ".claude/skills/tg/SKILL.md": skill(name="tg", body=shared + "\n"),
+        ".cursor/skills/tg/SKILL.md": skill(name="tg", body=shared + "\n"),
+    }
+    assert "R8.2" in rules(audit(files, scope="repo")[0])
+    assert "R8.2" not in rules(audit(files, scope="canonical")[0]), \
+        "the only duplicate was the sandbox copy; canonical scope must be quiet"
+
+
+@test
+def excluded_files_are_grouped_and_counted_for_the_declaration():
+    _, items, _ = audit({
+        "skills/s/SKILL.md": skill(),
+        "skills/s/evals.json": "{}",
+        ".cursor/skills/a/SKILL.md": skill(name="a"),
+        ".cursor/skills/a/ref.md": "x\n",
+        "docs/x.md": "x\n",
+        "README.md": "# Repo\n",
+    }, scope="canonical")
+    groups = ac.group_excluded(items)
+    assert groups[".cursor"] == 2, groups
+    assert groups["docs"] == 1, groups
+    assert groups[""] == 1, "a repo-root file groups under the empty key"
+    assert "skills" not in groups, "the canonical surface is in scope, not excluded"
+
+
+@test
+def repo_scope_is_the_default_and_excludes_nothing():
+    _, items, _ = audit({
+        "skills/s/SKILL.md": skill(),
+        ".cursor/skills/a/SKILL.md": skill(name="a"),
+    })
+    assert all(e["in_scope"] for e in items)
+    assert ac.group_excluded(items) == {}
 
 
 def main():

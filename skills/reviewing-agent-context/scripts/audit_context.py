@@ -12,7 +12,11 @@ agent's job, not this script's.
 
 Usage:
     python3 audit_context.py <repo-root> [--json] [--fail-on {error,warn,never}]
+                                         [--scope {repo,canonical}]
     python3 audit_context.py --locate-context-engineering
+
+--scope canonical restricts findings to skills/ and .claude/skills/, declaring
+everything outside it in the report rather than dropping it silently.
 
 Exit codes: 0 = clean at the chosen threshold, 1 = findings at or above it, 2 = bad usage.
 """
@@ -68,6 +72,12 @@ SCRIPT_SUFFIXES = (".py", ".js", ".ts", ".sh", ".rb")
 DATA_SUFFIXES = (".json", ".yaml", ".yml", ".toml")
 
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build", ".pytest_cache"}
+
+# Path prefixes `--scope canonical` restricts findings to: the skills a Library owns
+# and distributes. Files outside are still walked and counted (render_markdown
+# declares them), just not checked. The default `repo` scope checks everything — a
+# consuming repo whose skills live in `.cursor/skills/` wants that, not this.
+CANONICAL_SURFACE = ("skills/", ".claude/skills/")
 
 # Data under these directory names is read by a skill's own scripts, not loaded into
 # an agent's context, so it belongs in the on-exec tier rather than the task tier.
@@ -221,7 +231,21 @@ def classify(rel_path, repo_root):
     return "other", "none"
 
 
-def build_inventory(repo_root):
+def on_canonical_surface(rel_path):
+    return any(rel_path == p.rstrip("/") or rel_path.startswith(p) for p in CANONICAL_SURFACE)
+
+
+def group_excluded(items):
+    """{top-level dir: count} for every out-of-scope file. Repo-root files key on ''."""
+    groups = defaultdict(int)
+    for e in items:
+        if e["in_scope"]:
+            continue
+        groups[e["path"].split("/")[0] if "/" in e["path"] else ""] += 1
+    return dict(groups)
+
+
+def build_inventory(repo_root, scope="repo"):
     items = []
     for dirpath, dirnames, filenames in os.walk(repo_root):
         dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
@@ -236,6 +260,7 @@ def build_inventory(repo_root):
                 "path": rel,
                 "kind": kind,
                 "tier": tier,
+                "in_scope": scope != "canonical" or on_canonical_surface(rel),
                 "lines": text.count("\n") + 1 if text else 0,
                 "tokens": est_tokens(text),
             }
@@ -477,7 +502,7 @@ def tier_totals(items):
     totals = defaultdict(lambda: {"tokens": 0, "files": 0})
     always = 0
     for e in items:
-        if e["tier"] == "none":
+        if e["tier"] == "none" or not e["in_scope"]:
             continue
         totals[e["tier"]]["tokens"] += e["tokens"]
         totals[e["tier"]]["files"] += 1
@@ -490,6 +515,19 @@ def render_markdown(repo_root, items, findings, always_tokens, totals, ce_paths)
     o.append(f"# Context audit — {os.path.basename(os.path.abspath(repo_root))}\n")
     o.append(f"context-engineering skill: {ce_paths[0] if ce_paths else 'NOT FOUND — rubric-only audit'}\n")
 
+    excluded = group_excluded(items)
+    if excluded:
+        skipped = sum(excluded.values())
+        o.append("\n## Scope\n")
+        o.append("Audited: the canonical surface — `" + "`, `".join(CANONICAL_SURFACE) + "`.\n")
+        o.append(f"\n**Declared exclusions** — {skipped} file(s) outside the canonical surface "
+                 "were not audited (checked-and-clean is not claimed for them):\n")
+        o.append("| Directory | Files skipped |")
+        o.append("|---|---:|")
+        for key in sorted(excluded):
+            label = f"`{key}/`" if key else "repo root"
+            o.append(f"| {label} | {excluded[key]} |")
+
     o.append("\n## Load map\n")
     o.append("| Tier | Files | Est. tokens |")
     o.append("|---|---:|---:|")
@@ -499,14 +537,14 @@ def render_markdown(repo_root, items, findings, always_tokens, totals, ce_paths)
     o.append(f"\n**Always-tier budget: ~{always_tokens:,} tokens** "
              "(root instruction files + always-apply rules + every skill's frontmatter description).\n")
 
-    unloaded = [e for e in items if e["tier"] == "none" and e["tokens"] > 0]
+    unloaded = [e for e in items if e["tier"] == "none" and e["tokens"] > 0 and e["in_scope"]]
     if unloaded:
         o.append(f"\n{len(unloaded)} file(s) in no load tier — nothing puts them in an agent's context.\n")
 
     o.append("\n## Inventory (agent-loaded)\n")
     o.append("| Path | Kind | Tier | Lines | Est. tokens |")
     o.append("|---|---|---|---:|---:|")
-    for e in sorted((e for e in items if e["tier"] != "none"), key=lambda x: -x["tokens"]):
+    for e in sorted((e for e in items if e["tier"] != "none" and e["in_scope"]), key=lambda x: -x["tokens"]):
         o.append(f"| `{e['path']}` | {e['kind']} | {e['tier']} | {e['lines']} | {e['tokens']:,} |")
 
     errors, warns = findings.by_severity("error"), findings.by_severity("warn")
@@ -534,6 +572,11 @@ def main():
     ap.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     ap.add_argument("--fail-on", choices=("error", "warn", "never"), default="error",
                     help="exit 1 at this severity or above (default: error)")
+    ap.add_argument("--scope", choices=("repo", "canonical"), default="repo",
+                    help="'canonical' restricts findings to the canonical surface (%s); files "
+                         "outside it are still counted and named in the report as a declared "
+                         "exclusion. Default 'repo' audits the whole tree."
+                         % ", ".join(CANONICAL_SURFACE))
     ap.add_argument("--locate-context-engineering", action="store_true",
                     help="print where the context-engineering skill is installed, then exit")
     args = ap.parse_args()
@@ -555,20 +598,24 @@ def main():
         print(f"ERROR: not a directory: {repo_root}", file=sys.stderr)
         return 2
 
-    items = build_inventory(repo_root)
+    items = build_inventory(repo_root, scope=args.scope)
     findings = Findings()
 
-    for entry in items:
+    # Checks run over the in-scope items only; `items` keeps the excluded files so
+    # the report can declare them (see group_excluded / render_markdown).
+    scoped = [e for e in items if e["in_scope"]]
+
+    for entry in scoped:
         if entry["kind"] == "skill":
             check_frontmatter(entry, findings)
             check_body_size(entry, findings)
 
-    links = check_links(repo_root, items, findings)
-    check_reference_tocs(repo_root, items, links, findings)
-    check_time_sensitive(repo_root, items, findings)
-    check_path_claims(repo_root, items, findings)
-    check_evals(repo_root, items, findings)
-    check_duplicates(repo_root, items, findings)
+    links = check_links(repo_root, scoped, findings)
+    check_reference_tocs(repo_root, scoped, links, findings)
+    check_time_sensitive(repo_root, scoped, findings)
+    check_path_claims(repo_root, scoped, findings)
+    check_evals(repo_root, scoped, findings)
+    check_duplicates(repo_root, scoped, findings)
 
     totals, always_tokens = tier_totals(items)
     ce_paths = locate_context_engineering(repo_root)
@@ -576,9 +623,11 @@ def main():
     if args.json:
         print(json.dumps({
             "repo": repo_root,
+            "scope": args.scope,
             "context_engineering_skill": ce_paths,
             "always_tier_tokens": always_tokens,
             "tier_totals": totals,
+            "declared_exclusions": group_excluded(items),
             "inventory": items,
             "findings": findings.rows,
         }, indent=2))
