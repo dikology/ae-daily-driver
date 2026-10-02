@@ -1,6 +1,6 @@
 ---
 name: triage-analytics
-description: Move incoming analytics engineering requests and external PRs through a state machine of triage roles — categorise by issue-tracker component (BI, ETL, Ad-hoc, DataOps, A/B, Discovery, Docs, Goal, Report) or issue type Bug, resolve the owning repo, verify, score the context gate, grill until pass, and write agent-ready briefs. Fork of mattpocock/skills' triage, adapted for cross-repo analytics work.
+description: Move incoming analytics engineering requests and external PRs through a state machine of triage roles — categorise by issue-tracker component (BI, ETL, Ad-hoc, DataOps, A/B, Discovery, Docs, Goal, Report) or issue type Bug, resolve the owning repo, verify, score the context gate, grill until pass, and write agent-ready briefs. Use when a new analytics request, bug report, or external PR needs categorising and routing, or when a ticket must clear the context gate before an agent picks it up. Fork of mattpocock/skills' triage, adapted for cross-repo analytics work.
 disable-model-invocation: true
 ---
 

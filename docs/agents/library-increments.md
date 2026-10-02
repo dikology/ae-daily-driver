@@ -42,10 +42,22 @@ one-candidate-at-a-time throttle in ADR-0003.
 
 ### Declared remainder
 
-Green over the canonical surface currently carries one named exception: R7.1 keeps firing for
-`sprint-digest`, `triage-analytics`, and `retrospective`, whose rung-2 cases are deferred to
-batch 2. It is recorded here so the warning stays legible. Any *other* R7.1 finding is a
-regression.
+Green over the canonical surface means zero errors and zero warnings, with one named exception:
+R7.1 ("no evaluations found for this skill"). The skills it may fire for are listed here, each with
+what closes it, so the warning stays legible.
+
+| Skill | R7.1 | Closed by |
+| --- | --- | --- |
+| `dataviz` | fires | ticket 08 (batch 1) |
+| `do-jira-task` | fires | ticket 08 (batch 1) |
+| `telegram-git-diff` | fires | ticket 08 (batch 1) |
+| `sprint-digest` | fires | batch 2 |
+| `triage-analytics` | fires | batch 2 |
+| `retrospective` | passes on its `scenarios/` directory; fires once ticket 07 requires a cases file that parses | batch 2 |
+
+The last three are the **declared batch-1 remainder**: their rung-2 cases are deliberately deferred
+to batch 2, and they are the only R7.1 findings batch 1 leaves behind. An R7.1 finding for a skill
+outside this table is a regression; once ticket 08 lands, so is one for its three skills.
 
 ## Definition of done
 

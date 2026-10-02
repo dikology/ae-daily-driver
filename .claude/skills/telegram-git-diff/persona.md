@@ -8,6 +8,19 @@ multipassionate / "Kitsune brain". Posts as a fellow explorer, not a guru.
 If this file and a live channel sample disagree, the sample wins.
 To refresh: see the refresh section at the bottom.
 
+## Contents
+
+- [Language](#language)
+- [Structure](#structure)
+- [Tone](#tone)
+- [Formatting](#formatting)
+- [Distinctive moves](#distinctive-moves-use-when-they-fit-never-as-costume)
+- [Git-diff register](#git-diff-register) — the register this skill writes in
+- [Few-shot: real updates](#few-shot-real-updates-match-these) — match these
+- [Anti-corpus](#anti-corpus-do-not-match-these) — do not match these
+- [Humanizer pass](#humanizer-pass-embedded)
+- [Refresh](#refresh)
+
 ---
 
 ## Language

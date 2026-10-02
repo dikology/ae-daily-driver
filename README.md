@@ -42,7 +42,7 @@ In a consuming repo, an **AE session** that touches data **entities** should:
 
 v1 entity kinds: dashboard, source, dbt model, metric, glossary term.
 
-See [CONTEXT.md](CONTEXT.md) for definitions, and [diagrams/scheme.excalidraw](diagrams/scheme.excalidraw) for the task → entity picture.
+See [CONTEXT.md](CONTEXT.md) for definitions.
 
 ## Decisions
 

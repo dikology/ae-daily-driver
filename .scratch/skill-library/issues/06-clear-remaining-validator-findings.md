@@ -32,3 +32,18 @@ seeing.
       the declared batch-1 remainder, listing the skills and the batch that closes them
 - [ ] `triage-analytics` is command-only, so its description change alters no auto-trigger
       behaviour and needs no rung-3 run
+
+## Comments
+
+**2026-10-02 — implemented.** Evidence: validator findings (kind 1) — R4.3 on `README.md`, R2.5 on
+`triage-analytics`, R4.4 on `persona.md`, plus the stale `AGENTS.md` runtime-copy claim.
+
+- `diagrams/scheme.excalidraw` was never committed and neither remaining diagram is the task →
+  entity picture, so the README reference was removed rather than re-pointed.
+- The ticket's premise that R7.1 fires for three skills does not match the validator. It fires for
+  five (`dataviz`, `do-jira-task`, `telegram-git-diff`, `sprint-digest`, `triage-analytics`);
+  `retrospective` passes on its `scenarios/` directory until ticket 07 tightens the check. The
+  declared-remainder section names all six with what closes each, and marks the batch-2 three as
+  the batch-1 remainder. Ticket 08's "update the remainder" item reduces to deleting three rows.
+- `/telegram-git-diff`: `omit — a dead diagram link, a stale layout claim, a contents list and a
+  command-only skill's description were corrected; no skill behaves differently.`
