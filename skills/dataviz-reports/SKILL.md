@@ -1,9 +1,9 @@
 ---
-name: dataviz
+name: dataviz-reports
 description: Use when reviewing an existing product-analytics chart/dashboard, or when exploring/discovering insights in a dataset ad-hoc. Produces or reviews a vertical stack of "insight cards" combining data-visualization grammar rules (Section A) with Apple-style direct-manipulation motion (Section B). Picks output mode by user intent (Section E). Trigger on "review this chart/dashboard", "explore this data", "build an analytics card", "adhoc analysis", "canvas", "save report".
 ---
 
-# Dataviz
+# Dataviz-reports
 
 A single format for two modes: **Review** (audit existing chart/dashboard code) and **Discovery** (ad-hoc exploration of a dataset). Both modes operate on the same unit of content: an **insight card** — one chart or statement, encoded correctly (Section A) and animated/interacted with restraint (Section B). Deliver via the output mode the user requests (Section E).
 
