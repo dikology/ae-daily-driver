@@ -7,8 +7,8 @@
       { "prompt": "Which of our instruction files and rules are actually loaded, and what do they cost?", "top_k": 3 }
     ],
     "negative": [
-      { "prompt": "My agent forgot the project conventions mid-session, fix its context", "owner": "context-engineering" },
-      { "prompt": "Review this pull request for bugs", "owner": "code-review-and-quality" }
+      { "prompt": "Wrap up this session: what did we learn, and which skills should be updated from it?", "owner": "retrospective" },
+      { "prompt": "Review this dashboard and tell me which charts need fixing", "owner": "dataviz-reports" }
     ]
   },
   "evals": [

@@ -7,6 +7,9 @@ tier, measures its token cost, and checks it against the machine-decidable lines
 references/rubric.md (R1.1, R2.1, R2.3, R2.4, R3.4, R4.1-R4.5, R7.1, R8.1, R8.6, and
 near-duplicate detection for R8.2).
 
+R7.1 reads its schema from cases_schema.py, the same definition run_skill_evals.py
+executes, so the check and the runner cannot drift apart.
+
 Everything it reports is a measurement or a resolved path. Judgment findings are the
 agent's job, not this script's.
 
@@ -27,6 +30,10 @@ import os
 import re
 import sys
 from collections import defaultdict
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import cases_schema  # noqa: E402
 
 # ── Constants ────────────────────────────────────────────────────────────────
 #
@@ -272,6 +279,7 @@ def build_inventory(repo_root, scope="repo"):
                 # is ever read, so it is an always-tier cost.
                 entry["always_tokens"] = est_tokens(entry["description"])
                 entry["body_lines"] = body.count("\n") + 1 if body else 0
+                entry["command_only"] = cases_schema.is_command_only(fm)
             elif tier == "always":
                 entry["always_tokens"] = entry["tokens"]
             items.append(entry)
@@ -457,19 +465,26 @@ def nearest_skill_root(repo_root, rel_path):
 
 
 def check_evals(repo_root, items, out):
-    """R7.1 — every skill has evaluations somewhere its own directory can reach."""
+    """R7.1 — every skill carries a rung-2 cases file that parses against the schema.
+
+    A missing file is a warning, as an absent evaluation always was. A file that is
+    present but does not satisfy cases_schema is an error: it claims evaluations the
+    runner cannot execute.
+    """
     for entry in items:
         if entry["kind"] != "skill":
             continue
-        skill_dir = os.path.join(repo_root, os.path.dirname(entry["path"]))
-        skill_name = os.path.basename(os.path.dirname(entry["path"]))
-        local = any(
-            os.path.exists(os.path.join(skill_dir, c))
-            for c in ("evals", "evals.json", "evals/cases.json", "scenarios")
-        )
-        shared = os.path.exists(os.path.join(repo_root, "evals", "cases", skill_name + ".json"))
-        if not (local or shared):
-            out.add("warn", "R7.1", entry["path"], "no evaluations found for this skill")
+        skill_dir = os.path.dirname(entry["path"])
+        cases_rel = f"{skill_dir}/{cases_schema.CASES_RELPATH}"
+        cases_abs = os.path.join(repo_root, cases_rel)
+        if not os.path.isfile(cases_abs):
+            out.add("warn", "R7.1", entry["path"],
+                    f"no evaluations found for this skill (expected {cases_schema.CASES_RELPATH})")
+            continue
+        skill_name = entry.get("name") or os.path.basename(skill_dir)
+        _, problems = cases_schema.validate(read_text(cases_abs), entry.get("command_only", False), skill_name)
+        for problem in problems:
+            out.add("error", "R7.1", cases_rel, problem)
 
 
 def check_duplicates(repo_root, items, out):

@@ -53,7 +53,7 @@ what closes it, so the warning stays legible.
 | `telegram-git-diff` | fires | ticket 08 (batch 1) |
 | `sprint-digest` | fires | batch 2 |
 | `triage-analytics` | fires | batch 2 |
-| `retrospective` | passes on its `scenarios/` directory; fires once ticket 07 requires a cases file that parses | batch 2 |
+| `retrospective` | fires since ticket 07: its `scenarios/` directory is not a rung-2 cases file | batch 2 |
 
 The last three are the **declared batch-1 remainder**: their rung-2 cases are deliberately deferred
 to batch 2, and they are the only R7.1 findings batch 1 leaves behind. An R7.1 finding for a skill
@@ -72,7 +72,10 @@ An increment is done when all of the following hold:
    must leave green (`CONTEXT.md` defines it); the run declares the excluded `.cursor/` sandbox
    rather than auditing it.
 4. **Rung-2 cases pass for every touched skill.** If the increment edits a skill that has a
-   rung-2 cases file (`skills/<name>/evals/cases.json`), its cases pass.
+   rung-2 cases file (`skills/<name>/evals/cases.json`), its cases pass:
+   `python3 skills/reviewing-agent-context/scripts/run_skill_evals.py . --skill <name>` reports
+   no `fail`. That is the free deterministic half; rows it reports as `skip` need the opt-in
+   `--with-model` run and are not passes.
 5. **`/telegram-git-diff` has been invoked.** It has produced either a draft or an omit verdict
    ("no post warranted", with a reason). The draft is a ticket step, enforced here rather than
    by memory.

@@ -45,3 +45,38 @@ No new cases file is needed to demonstrate this: the runner is demoable against 
 - [ ] `reviewing-agent-context`'s `SKILL.md` documents the runner and the widened scope, and the
       runner itself conforms to ADR-0004
 - [ ] The R7.1 tightening is recorded as a rule change for repos that already copied this skill
+
+## Comments
+
+**2026-10-02 — implemented.** Evidence: validator finding (kind 1) — R7.1 passed on the existence
+of a path named `evals/`, and the one cases file on the canonical surface had never been executed.
+
+- The schema is its own module, `scripts/cases_schema.py`, imported by both `audit_context.py`
+  (R7.1) and the new `scripts/run_skill_evals.py`. A third file rather than a home in either
+  consumer, because the runner already imports the validator and the reverse import would be a
+  cycle.
+- **The first run of the runner failed the existing cases file.** Both negative cases named owners
+  that are not skills in this repo (`context-engineering`, `code-review-and-quality`). They were
+  re-pointed at `retrospective` and `dataviz-reports`, with new prompts. Open for the author: a
+  cases file ships with its skill, so these owners now fail in a consuming repo that lacks those
+  two skills, exactly as the old ones failed here. The format has no way to say "owner lives in the
+  consuming repo" — a candidate for ticket 08's "what the format could not express" list.
+- An owner must be *another auto-triggerable* skill: the runner fails an owner that is the skill
+  itself or is command-only, since neither can win a prompt.
+- A negative case whose owner resolves is a `skip` without a model, not a `pass` — the ranking is
+  undecided. The deterministic run over this repo is 1 pass (schema), 0 fail, 9 skip.
+- R7.1 severity: a missing cases file stays a warning; a present file that fails the schema is an
+  error. The schema enforces at least one execution case, not the rubric's three — ticket 08 gives
+  `telegram-git-diff` two and expects R7.1 to stop firing.
+- `retrospective` now fires R7.1, as the declared remainder anticipated; its row is updated.
+- **Not done here, found on the way:** the declared-remainder table is out of step with the tree.
+  `generate-status-report` is on the canonical surface, fires R7.1 plus one R2.5 and two R3.4, and
+  is not in the table; the table says `dataviz` where the skill is `dataviz-reports`. Both predate
+  this ticket.
+- The model-in-the-loop half is covered by tests through an injected fake only. It has not been run
+  against a real model; ticket 08 does that deliberately.
+- The runner discovers skills under `.cursor/skills/` as well, because that is a live agent folder
+  in a consuming repo. In this repo it means a sandbox skill can resolve as an owner.
+- Free suites: `test_audit_context.py` 25 pass, `test_run_skill_evals.py` 19 pass,
+  `labs/evals/test_graders.py` 24 pass. `labs/` untouched.
+- `/telegram-git-diff`: draft produced (in the session reply).

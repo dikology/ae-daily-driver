@@ -7,6 +7,7 @@ rather than in an audit report.
 Run: python3 scripts/test_audit_context.py
 """
 
+import json
 import os
 import sys
 import tempfile
@@ -49,8 +50,20 @@ def rules(out):
     return sorted({r["rule"] for r in out.rows})
 
 
-def skill(name="demo", desc="Does a thing. Use when the user asks for a thing.", body="# Demo\n"):
-    return f"---\nname: {name}\ndescription: {desc}\n---\n\n{body}"
+def skill(name="demo", desc="Does a thing. Use when the user asks for a thing.", body="# Demo\n",
+          command_only=False):
+    flag = "disable-model-invocation: true\n" if command_only else ""
+    return f"---\nname: {name}\ndescription: {desc}\n{flag}---\n\n{body}"
+
+
+EXECUTION = [{"prompt": "do the thing", "expected_output": "a thing", "expectations": ["the thing is done"]}]
+TRIGGER = {
+    "positive": [{"prompt": "do the thing", "top_k": 1}],
+    "negative": [{"prompt": "do another thing", "owner": "sibling"}],
+}
+# Rung-2 cases files: what an auto-triggerable skill and a command-only skill each owe.
+CASES = json.dumps({"trigger": TRIGGER, "evals": EXECUTION})
+CASES_COMMAND_ONLY = json.dumps({"evals": EXECUTION})
 
 
 TESTS = []
@@ -73,7 +86,7 @@ def frontmatter_violations_are_errors():
 def clean_skill_produces_no_frontmatter_findings():
     out, _, _ = audit({
         "skills/good/SKILL.md": skill(),
-        "skills/good/evals.json": "{}",
+        "skills/good/evals/cases.json": CASES,
     })
     assert not [r for r in out.rows if r["rule"].startswith(("R2", "R7"))], \
         f"clean skill should be quiet, got {out.rows}"
@@ -210,18 +223,56 @@ def skill_test_fixtures_are_on_exec_not_task_context():
         "test fixtures are read by the skill's scripts, not loaded into context"
 
 
+def r71(files):
+    return [r for r in audit(files)[0].rows if r["rule"] == "R7.1"]
+
+
 @test
-def missing_evaluations_are_flagged_and_shared_cases_satisfy_the_check():
-    assert "R7.1" in rules(audit({"skills/s/SKILL.md": skill()})[0])
-    shared = audit({"skills/s/SKILL.md": skill(), "evals/cases/s.json": "{}"})[0]
-    assert "R7.1" not in rules(shared)
+def a_skill_with_no_cases_file_is_flagged():
+    assert r71({"skills/s/SKILL.md": skill()})
+
+
+@test
+def an_empty_evals_directory_does_not_satisfy_the_check():
+    assert r71({"skills/s/SKILL.md": skill(), "skills/s/evals/.gitkeep": ""}), \
+        "R7.1 must not be satisfiable by mkdir"
+    assert r71({"skills/s/SKILL.md": skill(), "skills/s/scenarios/01.yaml": "a: 1\n"}), \
+        "a directory of some other shape is not a rung-2 cases file"
+
+
+@test
+def a_malformed_cases_file_is_an_error():
+    not_json = r71({"skills/s/SKILL.md": skill(), "skills/s/evals/cases.json": "{ nope"})
+    assert [r for r in not_json if r["severity"] == "error"], not_json
+    wrong_shape = r71({"skills/s/SKILL.md": skill(), "skills/s/evals/cases.json": "{}"})
+    assert [r for r in wrong_shape if r["severity"] == "error"], wrong_shape
+
+
+@test
+def an_auto_triggerable_skill_owes_trigger_cases_and_execution_expectations():
+    assert not r71({"skills/s/SKILL.md": skill(), "skills/s/evals/cases.json": CASES})
+    assert r71({"skills/s/SKILL.md": skill(), "skills/s/evals/cases.json": CASES_COMMAND_ONLY}), \
+        "an auto-triggerable skill without trigger cases must be flagged"
+    assert r71({"skills/s/SKILL.md": skill(),
+                "skills/s/evals/cases.json": json.dumps({"trigger": TRIGGER, "evals": []})}), \
+        "trigger cases alone do not stand in for execution expectations"
+
+
+@test
+def a_command_only_skill_owes_execution_expectations_and_no_trigger_cases():
+    command_only = skill(command_only=True)
+    assert not r71({"skills/s/SKILL.md": command_only, "skills/s/evals/cases.json": CASES_COMMAND_ONLY})
+    assert r71({"skills/s/SKILL.md": command_only, "skills/s/evals/cases.json": CASES}), \
+        "trigger cases on a skill that never auto-triggers test nothing"
+    assert r71({"skills/s/SKILL.md": command_only,
+                "skills/s/evals/cases.json": json.dumps({"evals": []})})
 
 
 @test
 def canonical_scope_excludes_the_sandbox_but_keeps_the_canonical_surface():
     files = {
         "skills/real/SKILL.md": skill(name="real", body="See [x](../../../docs/x.md)\n"),
-        "skills/real/evals.json": "{}",
+        "skills/real/evals/cases.json": CASES,
         ".cursor/skills/sand/SKILL.md": skill(name="sand", desc="Does sandbox things."),
         ".cursor/skills/sand/notes.md": "an orphan reference\n",
     }
@@ -268,7 +319,7 @@ def a_passage_shared_only_with_the_sandbox_is_not_flagged_under_canonical_scope(
 def excluded_files_are_grouped_and_counted_for_the_declaration():
     _, items, _ = audit({
         "skills/s/SKILL.md": skill(),
-        "skills/s/evals.json": "{}",
+        "skills/s/evals/cases.json": CASES,
         ".cursor/skills/a/SKILL.md": skill(name="a"),
         ".cursor/skills/a/ref.md": "x\n",
         "docs/x.md": "x\n",

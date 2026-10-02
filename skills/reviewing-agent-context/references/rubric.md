@@ -88,7 +88,11 @@ Freedom must match the fragility of the task.
 
 ## R7 — Evaluation-driven iteration
 
-- R7.1 At least three evaluations exist for the skill.
+- R7.1 At least three evaluations exist for the skill. The validator enforces the floor
+  under that: an `evals/cases.json` in the skill's directory that parses against
+  `scripts/cases_schema.py`, with execution expectations for every skill and trigger cases
+  only for skills without `disable-model-invocation`. An empty `evals/` directory fails.
+  Whether the count reaches three is yours to judge.
 - R7.2 Each evaluation states expected behaviors, not expected phrasings.
 - R7.3 A baseline without the skill was recorded, so improvement is measurable.
 - R7.4 Evaluations were written from observed failures, not imagined ones.

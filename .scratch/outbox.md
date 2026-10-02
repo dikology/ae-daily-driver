@@ -32,3 +32,10 @@ first mechanism of the "cross-repo context" initiative under `agents across
 repos`. Before this, wdwgfh only learned of changes here by scanning git log
 and re-inferring their stakes.
 Refs: `AGENTS.md` "Cross-repo signals"; `tapestry/projects/agents across repos.md`
+
+### 2026-10-02 — Rung 2 of the eval ladder is executable; R7.1 tightened
+`reviewing-agent-context` now ships a runner for `skills/<name>/evals/cases.json` and a
+shared schema, and R7.1 no longer passes on an empty `evals/` directory. Any repo that
+copied the skill will see R7.1 fire for skills it used to pass once it updates its copy —
+a rule change for consumers, and the first cheap, model-free eval the series can point at.
+Refs: `skills/reviewing-agent-context/scripts/run_skill_evals.py`; `.scratch/skill-library/issues/07-rung-2-runner-and-substantive-r71.md`

@@ -1,6 +1,6 @@
 ---
 name: reviewing-agent-context
-description: Audits a repository's agent context — instruction files, rules, skills, docs, MCP tools, generated artifacts — and reports what to keep, merge, move, or delete. Runs the context-engineering operating model over the repo, then scores every finding against Anthropic's skill-authoring rubric. Use when asked to audit or review agent context, when CLAUDE.md / AGENTS.md / .cursor/rules or a skills library has grown unmanaged, when agents repeatedly re-discover the same facts or ignore documented conventions, or when output quality degrades across a whole repo rather than one session.
+description: Audits a repository's agent context — instruction files, rules, skills, docs, MCP tools, generated artifacts — and reports what to keep, merge, move, or delete. Runs the context-engineering operating model over the repo, then scores every finding against Anthropic's skill-authoring rubric. Use when asked to audit or review agent context, when CLAUDE.md / AGENTS.md / .cursor/rules or a skills library has grown unmanaged, when agents repeatedly re-discover the same facts or ignore documented conventions, when output quality degrades across a whole repo rather than one session, or when a skill's `evals/cases.json` needs writing or running — it also executes those cases and reports a verdict per case.
 ---
 
 # Reviewing Agent Context
@@ -27,8 +27,23 @@ Outside dependencies, declared here rather than linked (ADR-0004).
   deterministic and rubric halves without it. Do not reconstruct the operating model
   from memory.
 
+- **A model command on `PATH`** — only for the eval runner's opt-in `--with-model` half
+  (default `claude -p`; override with `--model-cmd`). Absent: the runner exits 2 naming
+  the missing command. The deterministic half needs no model and still runs.
+- **Sibling skills named as `owner` in a cases file** — expected under the consuming
+  repo's `skills/`, `.claude/skills/` or `.cursor/skills/`. Absent: the runner fails
+  that negative case and names the owner it could not find; it does not skip it.
+
 `references/rubric.md` and `references/report-template.md` ship inside this skill, so
 they are not consuming-repo dependencies.
+
+## Scope: audits and runs
+
+This skill audits agent context, and it also **runs** skills' evaluations. Both halves
+read one schema, in `scripts/cases_schema.py`: the validator's R7.1 check demands a
+cases file of that shape, and the runner executes it. The audit workflow below is the
+main path; go to [Running a skill's evals](#running-a-skills-evals) when the task is to
+execute or write a cases file.
 
 ## Workflow
 
@@ -126,7 +141,57 @@ The audit is complete when:
 - [ ] The always-on token budget is stated as a before/after number
 - [ ] At least three eval cases exist, with baselines recorded before any change
 - [ ] `python3 scripts/audit_context.py <repo-root>` exits 0, or every remaining error is listed as accepted with a reason
-- [ ] `python3 scripts/test_audit_context.py` passes, if the validator was changed during the audit
+- [ ] `python3 scripts/test_audit_context.py` and `python3 scripts/test_run_skill_evals.py` pass, if the validator, the schema, or the runner was changed during the audit
+
+## Running a skill's evals
+
+A skill's evaluations live in `evals/cases.json` inside the skill's own directory. The
+shape — a `trigger` object with `positive` and `negative` cases, and an `evals` array of
+execution cases — is documented at the top of `scripts/cases_schema.py`; read that
+docstring before writing a cases file, and copy this skill's own `evals/cases.json` as a
+worked example.
+
+Execute the runner; do not read it:
+
+```bash
+python3 scripts/run_skill_evals.py <repo-root>                  # every skill with a cases file
+python3 scripts/run_skill_evals.py <repo-root> --skill <name>   # one skill
+python3 scripts/run_skill_evals.py <repo-root> --with-model     # opt-in, costs money
+```
+
+It prints one verdict row per case — `pass`, `fail`, or `skip` — and exits 1 if any case
+failed.
+
+**The default run is deterministic and free.** It fails a cases file that does not parse
+against the schema, trigger cases on a skill with `disable-model-invocation: true`, and
+a negative case whose `owner` is not another auto-triggerable skill in the repo. Every
+case only a model can decide — including a negative case whose owner resolves — is
+reported as `skip`. A skip is not a pass: never report a skill's evals as passing on
+a deterministic run alone — say which cases were skipped.
+
+**`--with-model` is opt-in.** Each trigger case costs one model call and each execution
+case two, so ask before running it. Positive trigger cases pass when the skill ranks
+within `top_k`, negative ones when the owner outranks it, execution cases when a judge
+finds every expectation met.
+
+Fix a failing cases file, re-run, and only proceed when no row says `fail`.
+
+### What R7.1 demands
+
+- Every skill: an `evals/cases.json` that parses, with at least one execution case. That is
+  the enforced floor; the rubric's "at least three evaluations" stays a judgment call.
+- Auto-triggerable skills: at least one positive and one negative trigger case as well.
+- Skills with `disable-model-invocation: true`: no trigger cases — they never compete
+  for a prompt, so ownership cases would test nothing.
+
+### Rule change for repos that already copied this skill
+
+R7.1 used to pass on the mere existence of `evals/`, `evals.json`, a `scenarios` directory, or a
+repo-level `evals/cases/<skill>.json`, so an empty directory satisfied it. It now
+requires `evals/cases.json` in the skill's directory, parsing against the schema. After
+updating a copy, expect R7.1 to fire for skills it previously passed: a missing cases
+file is a warning, a present-but-malformed one is an error. Those findings are skills
+that were never evaluated, not regressions.
 
 ## Red flags
 
