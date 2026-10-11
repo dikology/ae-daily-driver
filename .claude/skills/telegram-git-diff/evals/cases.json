@@ -1,0 +1,42 @@
+{
+  "skill_name": "telegram-git-diff",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/telegram-git-diff Library increment, no issue file applies. Use exactly this diff as the comparison scope; do not run git:\n\ndiff --git a/skills/do-jira-task/SKILL.md b/skills/do-jira-task/SKILL.md\n--- a/skills/do-jira-task/SKILL.md\n+++ b/skills/do-jira-task/SKILL.md\n@@ -61,3 +61,3 @@\n-Read the context gate ([context-gate.md](../../../docs/agents/context-gate.md)).\n+Read the context gate ([context-gate.md](../../docs/agents/context-gate.md)).\ndiff --git a/README.md b/README.md\n--- a/README.md\n+++ b/README.md\n@@ -12,3 +12,3 @@\n-See [the triage labels](docs/triage-labels.md) and [the issue tracker](docs/issue-tracker.md).\n+See [the triage labels](docs/agents/triage-labels.md) and [the issue tracker](docs/agents/issue-tracker.md).\n",
+      "expected_output": "An omit verdict with a one-sentence reason — the diff only repairs relative links, so no reader can do or see anything new — and no draft.",
+      "expectations": [
+        "The reply is an omit verdict: it opens with 'omit' followed by a reason",
+        "The reason names what changed (links or paths were corrected) and states that it has no consequence for readers or that no skill behaves differently",
+        "No Telegram post is drafted, not even as an alternative or an 'in case you want one anyway'",
+        "Nothing is described as sent to or saved in Telegram"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/telegram-git-diff Use exactly this diff as the comparison scope; do not run git:\n\ndiff --git a/.claude/skills/telegram-git-diff/SKILL.md b/.claude/skills/telegram-git-diff/SKILL.md\n--- a/.claude/skills/telegram-git-diff/SKILL.md\n+++ b/.claude/skills/telegram-git-diff/SKILL.md\n@@ -22,6 +22,11 @@\n    - If the working-tree diff is empty, inspect the latest commit.\n-2. Inspect the diff and relevant surrounding code.\n-3. Draft one post.\n+2. If this run is a library increment, read the increment's issue file too. The issue\n+   file supplies intent; the diff stays the source of truth for what changed.\n+3. Inspect the diff and relevant surrounding code.\n+4. Decide whether a post is warranted. If not, return an omit verdict and stop here.\n+5. Draft one post.\n@@ -60,0 +66,12 @@\n+## The bar for declining\n+\n+Not every change earns a post. When the diff has no consequence for anyone reading the\n+channel - a link fix, a path rename, a typo - say so instead of forcing prose out of it.\n+\n+When declining, return an omit verdict and nothing else:\n+\n+    omit - <one sentence naming what changed and why it has no audience consequence>\n",
+      "expected_output": "A draft post in the default Update register, in Russian, about the skill gaining the ability to decline — returned in a fenced text block.",
+      "expectations": [
+        "The reply is a drafted post, not an omit verdict",
+        "The post is returned inside a fenced code block",
+        "The post is written in Russian",
+        "The post is one to four short paragraphs of prose with no bullet list, no emoji headline and no hashtags",
+        "The post says the skill can now decline to write a post, or reads the issue file for intent — a change evidenced by the diff",
+        "The post does not claim a release, deployment, or measured improvement the diff does not show",
+        "No repository file path appears in the post"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/telegram-git-diff English, audience: analytics engineers. Library increment. Issue file excerpt (intent): \"Rung 2 of the eval ladder does not exist as a check. Build a runner for each skill's cases file. Once it lands, every skill is evaluated on every commit in CI and the library is fully covered.\" Use exactly this diff as the comparison scope; do not run git:\n\ndiff --git a/skills/reviewing-agent-context/scripts/run_skill_evals.py b/skills/reviewing-agent-context/scripts/run_skill_evals.py\nnew file mode 100644\n--- /dev/null\n+++ b/skills/reviewing-agent-context/scripts/run_skill_evals.py\n@@ -0,0 +1,14 @@\n+\"\"\"Executes each skill's evals/cases.json and reports a verdict per case.\n+\n+Default run: no model, free. Fails a file that does not parse, and a negative\n+trigger case whose owner is not a skill in the repo. Cases only a model can\n+decide are reported as skip, never as a pass.\n+\n+--with-model is opt-in and costs money.\n+\n+Usage: python3 run_skill_evals.py <repo-root> [--skill NAME] [--with-model]\n+\"\"\"\n+\n+def run(repo_root, only=None, model=None):\n+    ...\n",
+      "expected_output": "A draft that takes its intent from the issue excerpt and its facts from the diff: a runner now exists and its default run is free, with no claim of CI wiring or full coverage, which the issue promises and the diff does not show.",
+      "expectations": [
+        "The reply is a drafted post in English, not an omit verdict",
+        "The post says a runner for skill eval cases now exists",
+        "The post does not claim the evals run in CI or on every commit",
+        "The post does not claim every skill, or the whole library, is now covered",
+        "No personal context absent from the diff and the request (mood, weather, health, pets) is invented"
+      ]
+    }
+  ]
+}

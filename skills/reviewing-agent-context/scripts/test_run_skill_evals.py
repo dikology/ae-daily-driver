@@ -193,6 +193,17 @@ def only_restricts_the_run_and_a_named_skill_without_cases_fails():
     assert verdicts(rows) == ["fail"], rows
 
 
+@test
+def a_named_skill_installed_twice_runs_only_the_copies_that_carry_cases():
+    stale_copy = {".cursor/skills/demo/SKILL.md": skill("demo")}
+    rows = run(tree(BOTH, extra=stale_copy), only=["demo"])
+    assert {r["dir"] for r in rows} == {"skills/demo"}, rows
+    assert not rse.failed(rows), "a copy without cases must not fail the copy that has them"
+    neither = {"skills/demo/SKILL.md": skill("demo"), **stale_copy}
+    rows = run(neither, only=["demo"])
+    assert verdicts(rows) == ["fail", "fail"], "no copy has cases, so every copy is reported"
+
+
 def fake_model(ranking, met=True):
     """A model that ranks skills as told, replies to tasks, and grades every expectation `met`."""
     def model(prompt):

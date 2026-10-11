@@ -1,0 +1,52 @@
+{
+  "skill_name": "dataviz-reports",
+  "trigger": {
+    "positive": [
+      { "prompt": "Review this dashboard and tell me which charts are misleading before I show it to the product team.", "top_k": 1 },
+      { "prompt": "Here's a CSV of daily signups by platform for the last quarter — explore it and show me what's interesting.", "top_k": 1 },
+      { "prompt": "Build an analytics card for week-2 retention by signup cohort and save the report.", "top_k": 1 }
+    ],
+    "negative": [
+      { "prompt": "Pull this sprint's Jira issues and write the weekly status report for the delivery manager: progress, blockers, what's done.", "owner": "generate-status-report" },
+      { "prompt": "Review our agent skills and rules and report which instruction files are always loaded and what they cost.", "owner": "reviewing-agent-context" },
+      { "prompt": "Let's wrap up: review today's session and tell me what we learned and which skills to update.", "owner": "retrospective" }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this dashboard. Card 1: a 3D pie chart of sessions by country with 14 slices. Card 2: a dual-axis line chart, revenue in RUB on the left axis and conversion % on the right, titled 'Chart 2'. Card 3: a bar chart of DAU by platform with the y-axis starting at 40,000 and the bars in the order the query returned them. Card 4: a line chart of weekly actives with 6 points, titled 'Weekly actives grew 8% in six weeks', axes labelled, with a table of the exact numbers beside it.",
+      "expected_output": "A Review-mode findings table that blocks the pie, flags the dual axis and the truncated, unsorted bar chart, leaves the sound card alone, and ends on a verdict line that is not Approved.",
+      "expectations": [
+        "The findings are given as a table with card, issue, section, severity and fix columns",
+        "Card 1 is flagged at Block severity for being 3D and/or a pie with far more than 5-6 slices, with a bar chart or table as the fix",
+        "Card 2's dual axis is flagged, with two separate charts or indexing to base 100 as the fix, and its title 'Chart 2' is flagged for not stating a conclusion",
+        "Card 3 is flagged for the truncated y-axis on a bar chart and for unsorted categories",
+        "Card 4 is not given a Block-severity finding",
+        "The response ends with a verdict line, and the verdict is not Approved",
+        "Every fix names a concrete encoding or code change, not 'consider revising'"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Weekly actives for the last six weeks were 41,200, 41,900, 42,800, 43,100, 43,900 and 44,500. How much did it grow over the period?",
+      "expected_output": "A plain answer of about 8% growth in text, with or without a table, and no chart — the request names no visualization format.",
+      "expectations": [
+        "The growth is stated as approximately 8% (44,500 against 41,200)",
+        "No chart is rendered: no image, no plotting code, no HTML, no canvas",
+        "No report file is written or claimed to be written"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Explore this data and chart what you find. Daily signups by platform, one week: Mon iOS 410 Android 380 Web 120; Tue iOS 425 Android 372 Web 118; Wed iOS 431 Android 390 Web 125; Thu iOS 440 Android 385 Web 122; Fri iOS 470 Android 401 Web 131; Sat iOS 520 Android 455 Web 97; Sun iOS 515 Android 449 Web 94.",
+      "expected_output": "Discovery mode: one question asked of the data and exactly one insight card for it, with a conclusion as its title and the exact numbers beside the chart — not a dump of every possible chart.",
+      "expectations": [
+        "Exactly one insight card is produced in this turn, answering one stated question of the data",
+        "The card's title states a conclusion rather than naming the chart",
+        "The chart type fits the data shape (a line or grouped bar over days, at most three series) and is not a pie",
+        "A table of exact numbers accompanies the chart"
+      ]
+    }
+  ]
+}

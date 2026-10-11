@@ -37,7 +37,7 @@ Three rungs of ascending cost, so "what eval should this skill have?" is not alw
 
 **The tier rule:** if a change can alter the model's output on identical input, it needs an eval.
 Everything else is structural and goes straight to `skills/`. Under this rule only `sprint-digest`
-and arguably `dataviz` ever touch rung 3, which frees the other five skills from the
+and arguably `dataviz-reports` ever touch rung 3, which frees the other five skills from the
 one-candidate-at-a-time throttle in ADR-0003.
 
 ### Declared remainder
@@ -48,16 +48,18 @@ what closes it, so the warning stays legible.
 
 | Skill | R7.1 | Closed by |
 | --- | --- | --- |
-| `dataviz` | fires | ticket 08 (batch 1) |
-| `do-jira-task` | fires | ticket 08 (batch 1) |
-| `telegram-git-diff` | fires | ticket 08 (batch 1) |
 | `sprint-digest` | fires | batch 2 |
 | `triage-analytics` | fires | batch 2 |
 | `retrospective` | fires since ticket 07: its `scenarios/` directory is not a rung-2 cases file | batch 2 |
 
-The last three are the **declared batch-1 remainder**: their rung-2 cases are deliberately deferred
+These three are the **declared batch-1 remainder**: their rung-2 cases are deliberately deferred
 to batch 2, and they are the only R7.1 findings batch 1 leaves behind. An R7.1 finding for a skill
-outside this table is a regression; once ticket 08 lands, so is one for its three skills.
+outside this table is a regression — including `dataviz-reports`, `do-jira-task` and
+`telegram-git-diff`, which ticket 08 gave cases files.
+
+One such regression is open: `generate-status-report` fires R7.1 (and one R2.5 and two R3.4) and
+has never been in this table. It predates batch 1's tickets and no ticket owns it yet, so the
+canonical surface is not green until one does.
 
 ## Definition of done
 

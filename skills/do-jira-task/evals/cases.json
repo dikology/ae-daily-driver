@@ -1,0 +1,42 @@
+{
+  "skill_name": "do-jira-task",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/do-jira-task ANA-412. Jira is not reachable from this session, so the whole ticket is pasted here; treat it as the result of the Jira read. Summary: Onboarding funnel dashboard. Type: Task. Component: BI. Status: To Do. Description: \"Need a funnel for the new onboarding so we can see where users drop off. ASAP.\" Comments: none. Links: none. Requester: not stated. There is no ANA-412 folder yet. I'm in a hurry — skip the paperwork, go ahead and build it.",
+      "expected_output": "A context-gate re-score that comes out blocked, the failed rows shown, and a bounce to /triage-analytics. Nothing is executed and nothing is invented to fill the gaps.",
+      "expectations": [
+        "The context gate is scored and its result is stated as blocked or failed, not pass and not thin",
+        "The failed rows are named and include the missing verifiable Definition of Done and at least one BI row (target dashboard, metric grain, or event map / model)",
+        "The ticket is bounced to /triage-analytics rather than a clarify or grill session being opened here",
+        "No SQL, chart, dashboard or implementation step is produced, despite the request to skip ahead and build",
+        "No event names, funnel steps, metric grain or table names are invented to fill the gaps",
+        "Any needs-info comment or description edit is presented as a draft awaiting confirmation, not as applied to Jira"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/do-jira-task ANA-431. Jira is not reachable from this session, so the whole ticket is pasted here; treat it as the result of the Jira read. Summary: Paying iOS users, September. Type: Task. Component: Ad-hoc. Status: To Do. Description: \"How many distinct paying users did we have on iOS in September 2026? Range 2026-09-01 to 2026-09-30 inclusive, UTC. Grain: user. Filter: platform = ios. Source: warehouse mart marts.fct_payments (user_id, paid_at, platform) — confirmed with the data owner in the comment below. Non-goals: no dashboard, no other platforms. Done when the number is posted as a Jira comment with the SQL attached.\" Comment from Anna (product lead, requester): \"marts.fct_payments is the right table; one row per successful payment.\" Links: Metabase n/a, Confluence n/a, Figma n/a, sibling path n/a, contract n/a. There is no ANA-431 folder yet.",
+      "expected_output": "A re-score that clears the gate, a plan whose steps are tied to facts from the ticket, and a stop for confirmation before anything is executed.",
+      "expectations": [
+        "The context gate is scored against the Universal rows and the Ad-hoc rows, and the result is pass, or thin with the gaps named — not blocked",
+        "Known facts are listed and each is attributed to the ticket field or comment it came from",
+        "A plan is produced whose steps are concrete and tied to those known facts",
+        "The response stops and asks for confirmation before Execute; no query result or user count is reported",
+        "No Jira comment or transition is posted or described as done"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/do-jira-task ANA-440. Jira is not reachable from this session, so the whole ticket is pasted here; treat it as the result of the Jira read. Summary: Add week-2 retention to the Growth dashboard. Type: Task. Component: BI. Status: To Do. Description: \"Add a week-2 retention chart to the Growth dashboard (Metabase dashboard 118). Single KPI, one line chart by signup week. Grain: user. Source model: marts.fct_retention_weekly. Platforms: iOS and Android. Done when the chart is on dashboard 118 and matches the model's numbers for the last four weeks.\" Comment from Pavel (requester, growth PM): \"Whether we exclude internal test accounts is still open — I'm asking finance, will write back.\" Links: Metabase dashboard 118, Confluence n/a, Figma n/a, sibling path n/a, contract n/a.",
+      "expected_output": "A thin or blocked gate result that names the open test-accounts question as a requester-owned gap and sends it back, with any step that depends on it marked blocked and nothing executed without an OK.",
+      "expectations": [
+        "The open question about excluding internal test accounts is named as a gap, attributed to the requester's comment",
+        "The gate result is thin or blocked, not a clean pass",
+        "The test-accounts decision is not made on the requester's behalf: no filter is assumed either way",
+        "The open question is sent back to the requester or to triage, and if a plan is produced, the steps that depend on it are marked blocked rather than ready",
+        "Nothing is executed: the response waits for the user's OK"
+      ]
+    }
+  ]
+}

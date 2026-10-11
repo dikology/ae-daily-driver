@@ -237,21 +237,28 @@ def run(repo_root, only=None, model=None):
 
     `model` is a callable (prompt) -> reply. None runs the deterministic half alone.
     `only` restricts the run to the named skills; a named skill that is missing, or
-    has no cases file, is a failed row rather than a silent omission.
+    has no cases file under any root, is a failed row rather than a silent omission.
     """
     skills = discover_skills(repo_root)
     rows = []
+
+    def has_cases(skill):
+        return os.path.isfile(os.path.join(repo_root, skill["dir"], cases_schema.CASES_RELPATH))
+
     if only:
         for name in only:
             matches = [s for s in skills if s["name"] == name]
             if not matches:
                 rows.append({"skill": name, "dir": "-", "case": "-", "kind": "schema", "verdict": "fail",
                              "detail": f"no skill named '{name}' under {', '.join(SKILL_ROOTS)}"})
-            for skill in matches:
+            # A copy without cases is not a failure while another copy of the same
+            # skill carries them; when none does, every copy reports the missing file.
+            with_cases = [s for s in matches if has_cases(s)]
+            for skill in with_cases or matches:
                 run_skill(repo_root, skill, skills, model, rows)
         return rows
     for skill in skills:
-        if os.path.isfile(os.path.join(repo_root, skill["dir"], cases_schema.CASES_RELPATH)):
+        if has_cases(skill):
             run_skill(repo_root, skill, skills, model, rows)
     return rows
 

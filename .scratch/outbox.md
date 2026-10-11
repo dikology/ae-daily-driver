@@ -39,3 +39,12 @@ shared schema, and R7.1 no longer passes on an empty `evals/` directory. Any rep
 copied the skill will see R7.1 fire for skills it used to pass once it updates its copy —
 a rule change for consumers, and the first cheap, model-free eval the series can point at.
 Refs: `skills/reviewing-agent-context/scripts/run_skill_evals.py`; `.scratch/skill-library/issues/07-rung-2-runner-and-substantive-r71.md`
+
+### 2026-10-11 — Rung 2 has been run against a real model for the first time
+Three skills now carry cases files, and the opt-in model half was run once: 13 of 15 cases pass,
+including `do-jira-task` refusing to execute on a context-gate fail and `telegram-git-diff`
+declining a link-fix diff. The series can now claim the cheap eval rung works end to end, and that
+it found a real deviation in `dataviz-reports`. Nine things the format cannot express are listed
+for batch 2, among them that command-only skills cannot be named as owners.
+Refs: `.scratch/skill-library/issues/08-first-cases-files.md`; `skills/do-jira-task/evals/cases.json`
+

@@ -160,7 +160,8 @@ python3 scripts/run_skill_evals.py <repo-root> --with-model     # opt-in, costs 
 ```
 
 It prints one verdict row per case — `pass`, `fail`, or `skip` — and exits 1 if any case
-failed.
+failed. When a skill is installed under two roots, `--skill` runs the copies that carry a
+cases file, and fails only when none does.
 
 **The default run is deterministic and free.** It fails a cases file that does not parse
 against the schema, trigger cases on a skill with `disable-model-invocation: true`, and
