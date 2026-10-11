@@ -6,7 +6,7 @@ Library of skills, rules, and agent workflows for analytics engineering daily wo
 
 ### Issue tracker
 
-Issues and specs live as local markdown under `.scratch/`. See `docs/agents/issue-tracker.md`.
+Issues and specs live as GitHub issues on `dikology/ae-daily-driver` (via the `gh` CLI). Tickets written before 2026-10-11 remain as markdown under `.scratch/skill-library/`. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

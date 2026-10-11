@@ -69,7 +69,7 @@ impact number can arrive in the same edit. See [labs/README.md](labs/README.md) 
 
 ## Working on this repo
 
-Library development uses local markdown issues under `.scratch/` (see [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md)). That tracker is for evolving the kit — not for AE unwrap closeout.
+Library development uses GitHub issues on this repo (see [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md)); earlier tickets remain as markdown under `.scratch/skill-library/`. That tracker is for evolving the kit — not for AE unwrap closeout.
 
 Useful skills already installed under `.cursor/skills/` (Matt Pocock set + local): `grill-with-docs`, `domain-modeling`, `wayfinder`, `to-tickets`, `writing-for-agents`, and others.
 
